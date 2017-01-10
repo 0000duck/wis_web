@@ -1,0 +1,190 @@
+﻿<script src="~/Scripts/jquery.js"></script>
+<script src="~/Scripts/jquery-ui.js"></script>
+
+<script src="~/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/angular.js"></script>
+<script src="~/Scripts/angular-route.min.js"></script>
+<script src="~/Scripts/angular-animate.min.js"></script>
+<script src="~/Scripts/angular-aria.min.js"></script>
+<script src="~/Scripts/angular-material.js"></script>
+<script src="~/Scripts/angular-messages.min.js"></script>
+<script src="~/Scripts/svg-assets-cache.js"></script>
+<script src="~/Scripts/jquery.signalR-2.1.2.js"></script>
+<script src="~/Scripts/jquery.contextMenu.min.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/ui-bootstrap-tpls-1.2.5.js"></script>
+<script src="~/signalr/hubs"></script>
+
+<link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
+<link href="~/Content/bootstrap.css" rel="stylesheet" />
+<link href="~/Content/jquery.contextMenu.min.css" rel="stylesheet" />
+<link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+<link href="~/Content/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/docs.css" rel="stylesheet" />
+<link href="~/Content/angular-material.css" rel="stylesheet" />
+
+<style type="text/css">
+    .navbar-inverse {
+        background-color: #222222;
+    }
+
+        .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > li > a:hover, .navbar-inverse .navbar-nav > li > a:focus {
+            background-color: #;
+        }
+
+        .navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:hover, .navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:hover, .navbar-inverse .navbar-nav > .open > a:focus {
+            background-color: #080808;
+        }
+
+    .dropdown-menu {
+        background-color: #ffffff;
+    }
+
+        .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+            background-color: #428bca;
+        }
+
+    .navbar-inverse {
+        background-image: none;
+    }
+
+    .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+        background-image: none;
+    }
+
+    .navbar-inverse {
+        border-color: #080808;
+    }
+
+        .navbar-inverse .navbar-brand {
+            color: #999999;
+        }
+
+            .navbar-inverse .navbar-brand:hover {
+                color: #ffffff;
+            }
+
+        .navbar-inverse .navbar-nav > li > a {
+            color: #999999;
+        }
+
+            .navbar-inverse .navbar-nav > li > a:hover, .navbar-inverse .navbar-nav > li > a:focus {
+                color: #ffffff;
+            }
+
+        .navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:hover, .navbar-inverse .navbar-nav > .open > a:focus {
+            color: #ffffff;
+        }
+
+            .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
+                color: #ffffff;
+            }
+
+    .dropdown-menu > li > a {
+        color: #333333;
+    }
+
+        .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+            color: #ffffff;
+        }
+
+    .navbar-inverse .navbar-nav > .dropdown > a .caret {
+        border-top-color: #999999;
+    }
+
+    .navbar-inverse .navbar-nav > .dropdown > a:hover .caret {
+        border-top-color: #ffffff;
+    }
+
+    .navbar-inverse .navbar-nav > .dropdown > a .caret {
+        border-bottom-color: #999999;
+    }
+
+    .navbar-inverse .navbar-nav > .dropdown > a:hover .caret {
+        border-bottom-color: #ffffff;
+    }
+
+    body {
+        background: url(../Images/bg.jpg) no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .panel {
+        -moz-box-shadow: 0px 0px 8px #363636;
+        -webkit-box-shadow: 0px 0px 8px #363636;
+        box-shadow: 0px 0px 8px #363636;
+    }
+</style>
+
+<header class="navbar navbar-inverse  bs-docs-nav get-top-offset" role="banner">
+    <div class="container">
+        <div class="navbar-header">
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="./" class="navbar-brand"><strong style="color: #0277BD;">INNO</strong><strong style="color: #B71C1C;">L</strong><strong style="color: #689F38;">U</strong><strong style="color: #0277BD;">X</strong></a>
+        </div>
+        <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+            <ul class="nav navbar-nav">
+                @*  <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "WriteTag" ? "active" : "")">
+                    <a href="@Url.Action("WriteTag", "Home")">進出廠登錄</a>
+                </li>*@
+                <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "WriteTagGo" ? "active" : "")">
+                    <a href="@Url.Action("WriteTagGo", "Home")">進出廠登錄</a>
+                </li>
+                <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Layout" ? "active" : "")">
+                    <a href="@Url.Action("Layout", "Home")">貨櫃分佈</a>
+                </li>
+
+                <li class="dropdown @(ViewContext.RouteData.Values["Action"].ToString() == "T1_PurchasePort" || ViewContext.RouteData.Values["Action"].ToString() == "T2_PurchasePort" || ViewContext.RouteData.Values["Action"].ToString() == "T2_PurchasePort" || ViewContext.RouteData.Values["Action"].ToString() == "T1_PurchasePort" ? "active" : "")">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">收貨碼頭 <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("T1_PurchasePort", "Home")">T1收貨碼頭</a></li>
+                        <li><a href="@Url.Action("T1_ShipingPort", "Home")">T1出貨碼頭</a></li>
+                        <li><a href="@Url.Action("T2_PurchasePort", "Home")">T2收貨碼頭</a></li>
+                        <li><a href="@Url.Action("T2_ShipingPort", "Home")">T2出貨碼頭</a></li>
+                    </ul>
+                </li>
+                <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Data" ? "active" : "")">
+                    <a href="@Url.Action("Data", "Home")">統計資料</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("VendorManagement", "Home")">廠商主檔</a>@*byEASY*@
+                </li>
+
+              
+                <li class="dropdown @(ViewContext.RouteData.Values["Action"].ToString() == "TagHistory" || ViewContext.RouteData.Values["Action"].ToString() == "SearchTagHistory" ? "active" : "")">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">讀取紀錄 <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("TagHistory", "Home")">Tag讀取紀錄</a></li>
+                        <li><a href="@Url.Action("SearchTagHistory", "Home")">搜尋Tag</a></li>
+                      
+                    </ul>
+                </li>
+                
+                <li class="dropdown @(ViewContext.RouteData.Values["Action"].ToString() == "CustCaption" || ViewContext.RouteData.Values["Action"].ToString() == "About" ? "active" : "")">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">系統 <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("CustCaption", "Home")">自訂顯示字幕</a></li>
+                        <li><a href="@Url.Action("About", "Home")">關於本系統</a></li>
+                      
+                    </ul>
+                </li>
+                <li>
+                    <a href="@Url.Action("Logout", "Account")">登出系統</a>
+                </li>
+
+
+            </ul>
+        </nav>
+    </div>
+</header>
+@RenderBody()

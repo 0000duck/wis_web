@@ -1,0 +1,1070 @@
+﻿<style>
+    .layoutContent {
+        /*height: 400px;*/
+        background-image: url("../Images/layout1085.jpg");
+        height: 339px;
+        width: 1085px;
+    }
+
+    .detail-form {
+        /*background:rgb(13, 8, 60);*/
+    }
+
+    .dragToolBox {
+        z-index: 99;
+        /*height: 700px;*/
+        width: 200px;
+        position: absolute;
+    }
+
+    .dragSelectMode {
+        z-index: 99;
+        width: 300px;
+        position: absolute;
+    }
+
+    .objectCaption {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+        width: 100%;
+        font-size: 14px;
+        color: black;
+        padding-left: 4;
+    }
+
+    .infoCaption {
+        /*display: table-cell;
+        vertical-align: middle;
+        text-align: center;*/
+        width: 100%;
+        font-size: 14px;
+        color: black;
+    }
+
+    .squareType {
+        position: absolute;
+        border: 1.5px solid black;
+        box-shadow: 2px 2px #5B5B5B;
+        word-wrap: break-word;
+        border-radius: 5px;
+        display: table;
+        text-align: center;
+        font-family: PMingLiU, Arial, Sans-Serif;
+        /*font-weight :bold;*/
+        background: rgb(111, 1, 1);
+        overflow: hidden;
+    }
+
+    .labelType {
+        position: absolute;
+        border: 1.5px solid black;
+        /*box-shadow : 2px 2px #5B5B5B;*/
+        word-wrap: break-word;
+        border-radius: 5px;
+        display: table;
+        text-align: center;
+        font-family: PMingLiU, Arial, Sans-Serif;
+        /*font-weight :bold;*/
+        background: white;
+        overflow: hidden;
+    }
+
+    .blankType {
+        position: absolute;
+        border: 0px;
+        /*box-shadow : 2px 2px #5B5B5B;*/
+        /*word-wrap : break-word;*/
+        /*border-radius :5px;*/
+        display: table;
+        text-align: center;
+        font-family: PMingLiU, Arial, Sans-Serif;
+        /*font-weight :bold;*/
+        background: white;
+        overflow: hidden;
+    }
+
+    .pointType {
+        position: absolute;
+        border: 1.5px solid black;
+        border-radius: 50%;
+        background: limegreen;
+    }
+
+    .info_border {
+        border: 1.5px solid black;
+        box-shadow: 2px 2px #5B5B5B;
+        border-radius: 5px;
+        /*display: table;*/
+        width: 250px;
+        height: 90px;
+        /*text-align: center;*/
+        background: #fff;
+        position: absolute;
+        border: solid 1px #333;
+        margin: 30px;
+        padding: 5px;
+    }
+        /*箭頭右*/
+        .info_border .arrow_r_int {
+            width: 0px;
+            height: 0px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent transparent transparent #333;
+            position: absolute;
+            top: 20%;
+            right: -20px;
+            box-Shadow: 2px 2px #5B5B5B;
+        }
+        /*箭頭右-邊框*/
+        .info_border .arrow_r_out {
+            width: 0px;
+            height: 0px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent transparent transparent #fff;
+            position: absolute;
+            top: 20%;
+            right: -17px;
+        }
+
+        /*箭頭左*/
+        .info_border .arrow_l_int {
+            width: 0px;
+            height: 0px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent #333 transparent transparent;
+            position: absolute;
+            top: 20%;
+            left: -20px;
+        }
+        /*箭頭左-邊框*/
+        .info_border .arrow_l_out {
+            width: 0px;
+            height: 0px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent #fff transparent transparent;
+            position: absolute;
+            top: 20%;
+            left: -19px;
+        }
+
+        /*箭頭上*/
+        .info_border .arrow_t_int {
+            width: 0px;
+            height: 0px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent transparent #333 transparent;
+            position: absolute;
+            top: -20px;
+            left: 25px;
+        }
+        /*箭頭上-邊框*/
+        .info_border .arrow_t_out {
+            width: 0px;
+            height: 0px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent transparent #fff transparent;
+            position: absolute;
+            top: -19px;
+            left: 25px;
+        }
+
+        /*箭頭下*/
+        .info_border .arrow_b_int {
+            width: 0px;
+            height: 0px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+            position: absolute;
+            bottom: -20px;
+            right: 30px;
+        }
+        /*箭頭下-邊框*/
+        .info_border .arrow_b_out {
+            width: 0px;
+            height: 0px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: #fff transparent transparent transparent;
+            position: absolute;
+            bottom: -17px;
+            right: 30px;
+        }
+</style>
+
+<script>
+    var Layout = angular.module('Layout', []);
+    Layout.controller('Layout', function ($scope, $http, $interval) {
+
+        $scope.init = function () {
+            $('.dragToolBox').draggable();
+            $('.dragSelectMode').draggable();
+            $('.dragInfo').draggable();
+
+            $(".dragToolBox").css('left', $(window).width() * 2 / 3).css('top', 70);
+            $(".dragSelectMode").css('left', $(window).width() * 2 / 3).css('top', 70);
+            $.contextMenu({
+                // define which elements trigger this menu
+                selector: ".layoutContent",
+                //trigger: 'none',
+                // define the elements of the menu
+                items: {
+                    add: {
+                        name: "Add", callback: function (key, opt) {
+                            $scope.disableID = false;
+                            $scope.targetHeight = '50';
+                            $scope.targetWidth = '50';
+                            $scope.targetTop = $scope.mouseTop;
+                            $scope.targetLeft = $scope.mouseLeft;
+                            $scope.targetZIndex = '1';
+                            $scope.targetID = '';
+                            $scope.targetCaption = '';
+
+                            $scope.isDragEditWindowShow = true;
+                            $scope.addMode = true;
+                            $scope.$apply();
+                            // $('.dragToolBox ').height(400);
+                        }
+                    },
+                    edit: {
+                        name: "Edit", callback: function (key, opt) {
+                            $scope.disableID = true;
+                            $scope.addMode = false;
+                            $scope.isDragEditWindowShow = true;
+                            $scope.$apply();
+                            //$('.dragToolBox ').height(320);
+                        }
+                    },
+                    remove: {
+                        name: "Remove", callback: function (key, opt) {
+                            $('#' + $scope.targetID).remove();
+                        }
+                    }
+                }
+
+            });
+
+
+
+            $('.layoutContent').mousedown(function (e) {
+                if (e.button == 2) {
+
+                    //$('.layoutContent').contextMenu();
+                    $scope.mouseTop = e.pageY + document.documentElement.scrollTop - $('.layoutContent').offset().top;
+                    $scope.mouseLeft = e.pageX + document.documentElement.scrollLeft - $('.layoutContent').offset().left;
+                    //$scope.targetCaption = e.pageY + '  ' + document.documentElement.scrollTop + '   ' + $('.layoutContent').offset().top + '  ' + parseInt($('.get-top-offset').css('height').replace('px', ''));
+                    if (e.target.id == '') {
+                        e.target = $(e.target).parent()[0];
+                    }
+                    $scope.targetID = e.target.id;
+                    $scope.targetHeight = e.target.height;
+                    $scope.targetWidth = e.target.width;
+                    $scope.targetTop = e.target.top;
+                    $scope.targetLeft = e.target.left;
+                    $scope.targetCaption = $(e.target).text();
+                    $scope.targetZIndex = e.target.style.zIndex;
+                }
+            });
+        }
+
+        $scope.TypeModel = [{ type: 'SQUARE' },
+                            { type: 'LABEL' },
+                            { type: 'BLANK' },
+                            { type: 'POINT' },
+                            { type: 'INFO_R' },
+                            { type: 'INFO_L' },
+                            { type: 'INFO_T' },
+                            { type: 'INFO_B' }];
+
+        $scope.addToLayout = function () {
+            $scope.isDragEditWindowShow = false;
+
+            printElementForEdit($scope.targetID, $scope.targetHeight, $scope.targetWidth, $scope.targetTop, $scope.targetLeft, $scope.targetCaption, $scope.targetZIndex, $scope.targetType);
+            $('#' + $scope.targetID).resizable({ grid: [5, 5] }).draggable();
+        }
+
+        $scope.getLayout = function (name) {
+            $http.post("@Url.Action("GetLayout", "Home")", { Name: $scope.LayoutName }).success(function (response) {
+                $.each(response, function (index, d) {
+                    // if already have elements, remove all
+                    $('#' + d.id).remove();
+                    printElementForEdit(d.id, d.height, d.width, d.top, d.left, d.caption, d.zIndex, d.type);
+
+                });
+            }).error(function (response) {
+                //alert(response);
+            });
+
+
+        }
+
+        $scope.saveLayout = function () {
+
+            var listObject = [];
+            var divType = '';
+            $('.ui-resizable').each(function () {
+
+                if ($(this).hasClass('squareType')) {
+                    divType = 'SQUARE';
+                } else if ($(this).hasClass('labelType')) {
+                    divType = 'LABEL';
+                } else if ($(this).hasClass('blankType')) {
+                    divType = 'BLANK';
+                } else if ($(this).hasClass('pointType')) {
+                    divType = 'POINT';
+                } else if ($(this).hasClass('info_border')) {
+                    if ($(this).children().hasClass('arrow_r_int')) {
+                        divType = 'INFO_R';
+                    } else if ($(this).children().hasClass('arrow_l_int')) {
+                        divType = 'INFO_L';
+                    } else if ($(this).children().hasClass('arrow_t_int')) {
+                        divType = 'INFO_T';
+                    } else if ($(this).children().hasClass('arrow_b_int')) {
+                        divType = 'INFO_B';
+                    }
+                }
+
+                listObject.push({
+                    id: this.id,
+                    height: this.style.height,
+                    width: this.style.width,
+                    top: this.style.top,
+                    left: this.style.left,
+                    caption: $(this).children("p").text(),
+                    type: divType,
+                    zIndex: this.style.zIndex,
+                });
+            });
+            $http.post("@Url.Action("SaveLayout", "Home")", { Name: $scope.LayoutName, listObject: JSON.stringify(listObject) }).success(function (response) {
+                if (response.status == 'ERROR') {
+                    alert(response.detail);
+
+                } else {
+                    //resetTimeout();
+                    alert(response.status);
+                    $scope.ShowSelectMode = false;
+                    $scope.edit = false;
+                }
+            }).error(function (response) {
+                alert(response);
+            });
+
+        };
+
+        $scope.$watch('edit', function (newValue, oldValue) {
+            if (newValue == false) {
+                $('.layoutContent').contextMenu(false);
+                $('.layoutContent div').remove();
+                $scope.isDragEditWindowShow = false;
+
+                $scope.getLayout($scope.LayoutName);
+            } else {
+                $('.layoutContent').contextMenu(true);
+                $('.layoutContent div').resizable({ grid: [5, 5] }).draggable();
+            }
+        });
+        $scope.init();
+
+        function printElementForEdit(Id, height, width, top, left, caption, zIndex, type) {
+            var div = document.createElement('div');
+            var DivID;
+            div.style.height = height;
+            div.style.width = width;
+            div.style.top = top;
+            div.style.left = left;
+            div.style.zIndex = zIndex;
+            div.id = Id;
+
+            var p = document.createElement('p');
+
+
+            switch (type) {
+                case 'SQUARE':
+                    $(div).addClass('squareType');
+                    $(p).addClass('objectCaption');
+                    break;
+                case 'LABEL':
+                    $(div).addClass('labelType');
+                    $(p).addClass('objectCaption');
+                    break;
+                case 'BLANK':
+                    $(div).addClass('blankType');
+                    $(p).addClass('objectCaption');
+                    break;
+                case 'POINT':
+                    $(div).addClass('pointType');
+                    $(p).addClass('objectCaption');
+                    $(div).hover(
+                      function () {
+                          var c = '';
+                          var t = '';
+
+                          DivID = div.id; /* POINT  caption byEASY*/
+                          switch (DivID) {
+                              case 'pointT2SB':
+                                  PointCaption = 'T2SB' + ' 貨車:' + $scope.T2_SB.Truck + ' 貨櫃:' + $scope.T2_SB.Container + ' 訪客:' + $scope.T2_SB.Guest;
+                                  break;
+                              case 'pointT2Delivery':
+                                  PointCaption = 'T2出貨' + ' 貨車:' + $scope.T2_Delivery.Truck + '貨櫃:' + $scope.T2_Delivery.Container + ' 訪客:' + $scope.T2_Delivery.Guest;
+                                  break;
+                              case 'pointT2Receive':
+                                  PointCaption = 'T2收貨' + ' 貨車:' + $scope.T2_Receive.Truck + '貨櫃:' + $scope.T2_Receive.Container + ' 訪客:' + $scope.T2_Receive.Truck;
+                                  break;
+                              case 'pointT2WH':
+                                  PointCaption = 'T2WH' + '貨車:' + $scope.T2_WH.Truck + '貨櫃:' + $scope.T2_WH.Container + '訪客:' + $scope.T2_WH.Guest;
+                                  break;
+                              case 'pointT2CP':
+                                  PointCaption = '中櫃場' + ' 貨車:' + $scope.T2_Center.Truck + '貨櫃:' + $scope.T2_Center.Container + ' 訪客:' + $scope.T2_Center.Guest;
+                                  break;
+                              case 'pointT1SB':
+                                  PointCaption = 'T1SB' + '貨車:' + $scope.T1_SB.Truck + '貨櫃:' + $scope.T1_SB.Container + '訪客:' + $scope.T1_SB.Guest;
+                                  break;
+                              case 'pointT1WH':
+                                  PointCaption = 'T1WH' + ' 貨車:' + $scope.T1_WH.Truck + '貨櫃:' + $scope.T1_WH.Container + ' 訪客:' + $scope.T1_WH.Guest;
+                                  break;
+                              case 'pointT1Receive':
+                                  PointCaption = 'T1收貨' + ' 貨車:' + $scope.T1_Receive.Truck + '貨櫃:' + $scope.T1_Receive.Container + ' 訪客:' + $scope.T1_Receive.Guest;
+                                  break;
+                              case 'pointT1Delivery':
+                                  PointCaption = 'T1出貨' + ' 貨車:' + $scope.T1_Delivery.Truck + '貨櫃:' + $scope.T1_Delivery.Container + ' 訪客:' + $scope.T1_Delivery.Guest;
+                                  break;
+                              case 'pointT1Parking':
+                                  PointCaption = 'Parking' + ' 貨車:' + $scope.T1_Parking.Truck + '貨櫃:' + $scope.T1_Parking.Container + ' 訪客:' + $scope.T1_Parking.Guest;
+                                  break;
+                              default:
+                                  PointCaption = '';
+                                  break;
+                          }
+                          /*----------------*/
+                          printElementForEdit('hoverInfo', '110', '60', (parseInt(this.style.top.replace('px', '')) - 160).toString() + 'px', (parseInt(this.style.left.replace('px', '')) - 45).toString() + 'px', PointCaption, '9', 'INFO_B');
+                      }, function () {
+                          $('#hoverInfo').remove();
+                      }
+                    ).click(function () {
+                        $http.post("@Url.Action("GetCarDetail", "Home")", { DivPoint: DivID }).success(function (response) {
+                            //byEASY for EDC data
+                            var detail = JSON.parse(response);
+
+                            $scope.carLists = detail;
+                            $scope.isInfoShow = true;
+                           // $scope.$apply();
+                        }).error(function (response) {
+                            //alert(response);
+                        });
+                    });
+
+                break;
+            default:
+
+                var span = document.createElement('span');
+                var span1 = document.createElement('span');
+                $(p).addClass('infoCaption');
+                switch (type) {
+                    case 'INFO_R':
+                        $(span).addClass('arrow_r_int');
+                        $(span1).addClass('arrow_r_out');
+                        break;
+                    case 'INFO_L':
+                        $(span).addClass('arrow_l_int');
+                        $(span1).addClass('arrow_l_out');
+                        break;
+                    case 'INFO_T':
+                        $(span).addClass('arrow_t_int');
+                        $(span1).addClass('arrow_t_out');
+                        break;
+                    case 'INFO_B':
+                        $(span).addClass('arrow_b_int');
+                        $(span1).addClass('arrow_b_out');
+                        //$(div).children("p").remove();
+                        //$(div).text(caption);
+                        break;
+                }
+                $(span).appendTo(div);
+                $(span1).appendTo(div);
+                $(div).addClass('info_border');
+                break;
+        }
+
+        $(p).text(caption);
+        $(p).appendTo(div);
+        $(div).appendTo('.layoutContent');
+
+
+
+    };
+        $scope.getAreaCount = function () {
+            $http.post("@Url.Action("GetAreaCount", "Home")", {}).success(function (response) {
+                //T1
+                $scope.T1_WH = response.T1_WH;
+                $scope.T1_Delivery = response.T1_Delivery;
+                $scope.T1_Receive = response.T1_Receive;
+                $scope.T1_SB = response.T1_SB;
+                $scope.T1_Parking = response.T1_Parking;
+
+                //T2
+                $scope.T2_WH = response.T2_WH;
+                $scope.T2_Delivery = response.T2_Delivery;
+                $scope.T2_Receive = response.T2_Receive;
+                $scope.T2_SB = response.T2_SB;
+                $scope.T2_Center = response.T2_Center;
+                //Total
+                $scope.Total_Truck = response.Total.Guest;
+                $scope.Total_BigTruck = response.Total.Truck//byEASY
+                $scope.Total_Container = response.Total.Container;
+                //$scope.$apply();
+            }).error(function (response) {
+                //alert(response);
+            });
+        }
+        $scope.getAreaCount();
+        $interval(function () { $scope.getAreaCount(); }, 3000);
+
+    })
+    Layout.controller('Statistice', function ($scope) {
+
+    })
+
+</script>
+<div ng-app="Layout" ng-controller="Layout">
+    <div class="row">
+
+        <div class='panel panel-default dragInfo' ng-show="isInfoShow" ng-init="isInfoShow = false" style="left:50px;position: absolute; z-index: 99; /*height: 600px; width: 800px; */  -moz-box-shadow: 0px 0px 8px #363636; -webkit-box-shadow: 0px 0px 8px #363636; box-shadow: 0px 0px 8px #363636;">
+            <div class='panel-heading'>
+                <i class='icon-edit icon-large'></i>
+                <strong>詳細資訊</strong>
+            </div>
+            <div class='panel-body'>
+
+                <table class='table table-striped table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>SN</th>
+                            <th>進場日期</th>
+                            <th>車號</th>
+                            <th>櫃號</th>
+                            <th>廠商</th>
+                            <th>車輛類型</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="car in carLists">
+                            <td>{{$index+1}}</td>
+                            <td>{{car.STARTTIME}}</td>
+                            <td>{{car.CAR_ID}}</td>
+                            <td>{{car.CONTAINER_ID}}</td>
+                            <td>{{car.VENDOR_NAME}}</td>
+                            <td>{{car.CAR_TYPE.replace("Container", "貨櫃").replace("Guest", "訪客").replace("Truck", "貨車")}}</td>
+
+                        </tr>
+
+                    </tbody>
+                </table>
+
+                </fieldset>
+                <div class='form-actions'>
+                    <button class='btn btn-default' type='submit' ng-click="isInfoShow = false">關閉</button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class='panel panel-default dragSelectMode' ng-show="ShowSelectMode">
+            <div class='panel-heading'>
+                <i class='icon-edit icon-large'></i>
+                <strong>名稱</strong>
+            </div>
+            <div class='panel-body'>
+                <form>
+                    <fieldset>
+                        <legend>Layout Name</legend>
+                        <div class='form-group has-success'>
+                            <label class='control-label'>名稱</label>
+                            <input class='form-control' placeholder='Please input name' ng-model="LayoutName" ng-init="LayoutName = '1'">
+                            <p class='help-block'>Layout Name.</p>
+                        </div>
+                    </fieldset>
+                    <div class='form-actions'>
+                        <button class='btn btn-default' type='submit' ng-click="saveLayout()">確定</button>
+
+                        <a class='btn' href='#' ng-click="ShowSelectMode = false">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class='panel panel-default dragToolBox' ng-show="isDragEditWindowShow">
+            <div class='panel-heading'>
+                <i class='icon-edit icon-large'></i>
+                <strong>工具箱</strong>
+            </div>
+            <div class='panel-body'>
+                <form>
+
+                    <div class='form-group has-success'>
+                        <label class='control-label'>ID</label>
+                        <input class='form-control' placeholder='Text only' ng-model="targetID" ng-disabled="disableID">
+                    </div>
+
+                    <div class='form-group has-success'>
+                        <label class='control-label'>顯示名稱</label>
+                        <input class='form-control' placeholder='Caption' ng-model="targetCaption">
+                        @*<p class='help-block'>Object's Caption.</p>*@
+                    </div>
+                    <div class='form-group has-success' ng-show="addMode">
+                        <label class='control-label'>類型</label>
+                        <select class='form-control' ng-model="objectType" ng-options="eachType.type for eachType in TypeModel" ng-change="targetType = objectType.type">
+                            <option value="">請選擇...</option>
+                        </select>
+                    </div>
+                    <div class='form-group has-success'>
+                        <label class='control-label'>Z-Index</label>
+                        <input class='form-control' placeholder='Number only' ng-model="targetZIndex">
+                        @*<p class='help-block'>Object's Z-Index.</p>*@
+                    </div>
+
+
+                    <div class='form-actions'>
+                        <button class='btn btn-default' type='submit' ng-click="addToLayout()">確定</button>
+
+                        <a class='btn' href='#' ng-click="isDragEditWindowShow = false">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1 get-offset">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+
+                        <h3 class="panel-title pull-left"><strong>廠內即時分布狀態</strong></h3>
+                        <button class="btn-xs btn-default pull-right" ng-show="!edit" ng-click="edit=true" ng-init="edit=false">修改</button>
+                        <button class="btn-xs btn-default pull-right" ng-show="edit" ng-click="ShowSelectMode = true;">儲存</button>
+                        <button class="btn-xs btn-default pull-right" ng-show="edit" ng-click="edit=false">取消</button>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="panel-body layoutContent">
+
+                        <form>
+                            <div class="">
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 col-md-offset-1">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+
+                    <h3 class="panel-title"><strong>合計</strong></h3>
+                </div>
+                <div class="panel-body detail-form">
+
+                    <form>
+                        <div class="col-md-10 col-md-offset-1">
+                            <div class="row">
+                                <h5>
+                                    <span class="label label-danger">T1 & T2</span>
+                                </h5>
+                            </div>
+                            <div class="row">
+
+                                <ul class="list-group">
+                                    <li class="list-group-item">
+                                        <span class="badge">{{Total_Container}}</span>
+                                        廠內貨櫃
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">{{Total_BigTruck}}</span>
+                                        廠內貨車
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">{{Total_Truck}}</span>
+                                        訪客
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-8 col">
+            <div class="row">
+                <div class="panel panel-info ">
+                    <div class="panel-heading">
+
+                        <h3 class="panel-title"><strong>T1廠</strong></h3>
+                    </div>
+                    <div class="panel-body detail-form">
+
+                        <form>
+                            <div class="col-md-10 col-md-offset-1">
+                                <div class="row">
+                                    <div class="col-md-2 col">
+                                        <div class="row">
+                                            <div class="col-md-1">
+                                                <h5>
+                                                    <span class="label label-success">C</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>
+                                                    <span class="label label-danger">WH+OB</span>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_WH.Container}}</span>
+                                                    貨櫃
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_WH.Truck}}</span>
+                                                    貨車
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_WH.Guest}}</span>
+                                                    訪客
+                                                </li>
+
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col">
+                                        <div class="row">
+                                            <div class="col-md-1">
+                                                <h5>
+                                                    <span class="label label-success">A</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>
+                                                    <span class="label label-danger">出貨碼頭</span>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_Delivery.Container}}</span>
+                                                    貨櫃
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_Delivery.Truck}}</span>
+                                                    貨車
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_Delivery.Guest}}</span>
+                                                    訪客
+                                                </li>
+
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col">
+                                        <div class="row">
+                                            <div class="col-md-1">
+                                                <h5>
+                                                    <span class="label label-success">B</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>
+                                                    <span class="label label-danger">收貨碼頭</span>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_Receive.Container}}</span>
+                                                    貨櫃
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_Receive.Truck}}</span>
+                                                    貨車
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_Receive.Guest}}</span>
+                                                    訪客
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    @*</div>
+                            <div class="row">*@
+                                    <div class="col-md-2 col">
+                                        <div class="row">
+                                            <div class="col-md-1">
+                                                <h5>
+                                                    <span class="label label-success">G</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>
+                                                    <span class="label label-danger">Parking</span>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_Parking.Container}}</span>
+                                                    貨櫃
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_Parking.Truck}}</span>
+                                                    貨車
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_Parking.Guest}}</span>
+                                                    訪客
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col">
+                                        <div class="row">
+                                            <div class="col-md-1">
+                                                <h5>
+                                                    <span class="label label-success">T</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>
+                                                    <span class="label label-danger">SB棟</span>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_SB.Container}}</span>
+                                                    貨櫃
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_SB.Truck}}</span>
+                                                    貨車
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T1_SB.Guest}}</span>
+                                                    訪客
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="panel panel-danger ">
+                    <div class="panel-heading">
+
+                        <h3 class="panel-title"><strong>T2廠</strong></h3>
+                    </div>
+                    <div class="panel-body detail-form">
+
+                        <form>
+                            <div class="col-md-10 col-md-offset-1">
+                                @*<div class="summary">*@
+                                <div class="row">
+                                    <div class="col-md-2 col">
+                                        <div class="row">
+                                            <div class="col-md-1">
+                                                <h5>
+                                                    <span class="label label-success">H</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>
+                                                    <span class="label label-danger">WH+OB</span>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_WH.Container}}</span>
+                                                    貨櫃
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_WH.Truck}}</span>
+                                                    貨車
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_WH.Guest}}</span>
+                                                    訪客
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col">
+                                        <div class="row">
+                                            <div class="col-md-1">
+                                                <h5>
+                                                    <span class="label label-success">L</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>
+                                                    <span class="label label-danger">出貨碼頭</span>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_Delivery.Container}}</span>
+                                                    貨櫃
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_Delivery.Truck}}</span>
+                                                    貨車
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_Delivery.Guest}}</span>
+                                                    訪客
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col">
+
+                                        <div class="row">
+                                            <div class="col-md-1">
+                                                <h5>
+                                                    <span class="label label-success">K</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>
+                                                    <span class="label label-danger">收貨碼頭</span>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_Receive.Container}}</span>
+                                                    貨櫃
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_Receive.Truck}}</span>
+                                                    貨車
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_Receive.Guest}}</span>
+                                                    訪客
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    @* </div>
+                            <div class="row">*@
+                                    <div class="col-md-2 col">
+                                        <div class="row">
+                                            <div class="col-md-1">
+                                                <h5>
+                                                    <span class="label label-success">M</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>
+                                                    <span class="label label-danger">SB棟</span>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_SB.Container}}</span>
+                                                    貨櫃
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_SB.Truck}}</span>
+                                                    貨車
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_SB.Guest}}</span>
+                                                    訪客
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col">
+                                        <div class="row">
+                                            <div class="col-md-1">
+                                                <h5>
+                                                    <span class="label label-success">Q</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>
+                                                    <span class="label label-danger">中櫃場</span>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_Center.Container}}</span>
+                                                    貨櫃
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_Center.Truck}}</span>
+                                                    貨車
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="badge">{{T2_Center.Guest}}</span>
+                                                    訪客
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                @* </div>*@
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>

@@ -1,0 +1,1071 @@
+﻿<script>
+    var InOutSiteGo = angular.module('InOutSiteGo', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+    InOutSiteGo.controller('InOutSiteGo', function ($scope, $http) {
+
+
+        $scope.WriterLocation = 'eeeee';
+        $scope.getVendorDetailIN = function () {
+            $http.post("@Url.Action("getVendorDetail", "Home")", { guestID: $scope.GuestIdIN }).success(function (response) {
+
+
+                var detail = JSON.parse(response);
+                if ($scope.GuestIdIN == '') {
+                    $scope.VendorNameIN = '';
+                    $scope.DriverNameIN = '';
+                    $scope.DriverPhoneIN = '';
+                } else if (detail.length > 0) {
+
+                    $scope.VendorNameIN = detail[0].VENDORNAME;
+                    $scope.DriverNameIN = detail[0].DRIVERNAME;
+                    $scope.DriverPhoneIN = detail[0].DRIVERPHONE;
+
+                    //$scope.VendorDetailIN = 'true';
+                } else if (detail.length == 0) {
+                    $scope.VendorNameIN = "查無人員資料";
+                    $scope.DriverNameIN = "查無人員資料";
+                    $scope.DriverPhoneIN = "查無人員資料";
+                    //$scope.VendorDetailIN = 'true';
+                }
+
+
+            }).error(function (response) {
+                //alert(response);
+            });
+        }
+
+        $scope.getCarInfoIN = function () {
+            if ($scope.chkContainerIN) {
+                if ($scope.ContainerIdIN != '') {
+                    if (checkContainerID($scope.ContainerIdIN)) {
+
+                        $http.post("@Url.Action("GetContainer", "Home")", { id: $scope.ContainerIdIN }).success(function (response) {
+
+                            if (response.type == '40HQ') {
+                                $scope.ContainerTypeIN = $scope.TypeModel[1];
+
+                            } else if (response.type == '20RF') {
+                                $scope.ContainerTypeIN = $scope.TypeModel[2];
+
+                            }
+                            $scope.containerQueryResult = response.status;
+                            //$scope.DriverName = response.driverName;
+                            //$scope.DriverPhone = response.driverPhone;
+                            //$scope.VendorName = response.vendor;
+                            //$scope.Reason = response.reason;
+
+                        }).error(function (response) {
+                            alert(response);
+                        });
+                    } else {
+                        alert('貨櫃號碼輸入錯誤');
+                        $scope.ContainerIdIN = '';
+                    }
+                }
+            }
+        };
+
+
+
+        //------
+        $scope.clear = function () {
+            if ($scope.chkContainerIN == true) {
+                $scope.chkContainerIN = false;
+            } else if ($scope.TruckIN == true) {
+                $scope.TruckIN = false;
+            } else if ($scope.emptyTruckIN == true) {
+                $scope.emptyTruckIN = false;
+            } else if ($scope.chkGuestIN == true) {
+                $scope.chkGuestIN = false;
+            }
+            $scope.ContainerIdIN = '';
+            $scope.CarIdIN = '';
+            $scope.GuestIdIN = '';
+            $scope.Location = $scope.LocationModel[0];
+            $scope.ContainerTypeIN = $scope.TypeModel[0];
+            $scope.GuestNumIN = $scope.GuestNumMode[0];
+            $scope.VendorNameIN = '';
+            $scope.DriverNameIN = '';
+            $scope.DriverPhoneIN = '';
+
+
+            if ($scope.chkContainerOUT == true) {
+                $scope.chkContainerOUT = false;
+            } else if ($scope.TruckOUT == true) {
+                $scope.TruckOUT = false;
+            } else if ($scope.emptyTruckOUT == true) {
+                $scope.emptyTruckOUT = false;
+            } else if ($scope.chkGuestOUT == true) {
+                $scope.chkGuestOUT = false;
+            }
+
+            $scope.GuestIdOUT = '';
+
+            $scope.VendorNameOUT = '';
+            $scope.DriverNameOUT = '';
+            $scope.DriverPhoneOUT = '';
+
+            if ($scope.VendorDetailIN = 'true' || $scope.VendorDetailOUT == 'true') {
+                //$scope.VendorDetailIN = 'false';
+                //$scope.VendorDetailOUT = 'false';
+            }
+
+        };
+
+
+
+        $scope.addInfo = function () {
+            var containerQueryResult;
+            var ContainerID;
+            var VendorCount;
+            var mFab;
+
+            if ($scope.Location.name == 'Parking') {
+                mFab = 'T1';
+            } else if ($scope.Location.name == 'Center') {
+                mFab = 'T2';
+            } else {
+                mFab = $scope.Fab;
+            }
+
+            if ($scope.TruckIN) {
+                VendorCount = '0';
+                carid = $scope.CarIdIN.replace('-', '');;
+                ContainerID = carid;
+                containerQueryResult = '';
+                TYPE = ' ';
+                cartype = 'Truck';
+
+            } else if ($scope.chkContainerIN) {
+
+                VendorCount = '0';
+                TYPE = $scope.ContainerTypeIN
+                ContainerID = $scope.ContainerIdIN;
+                carid = ' ';
+                cartype = 'Container';
+                containerQueryResult = $scope.containerQueryResult;
+            } else if ($scope.chkGuestIN) {
+                carid = $scope.CarIdIN.replace('-', '');
+                ContainerID = carid;
+                VendorCount = $scope.GuestNumIN;
+                containerQueryResult = ' ';
+                TYPE = ' ';
+                cartype = 'Guest';
+            } else if ($scope.emptyTruckIN) {
+                VendorCount = '0';
+                carid = $scope.CarIdIN.replace('-', '');
+                ContainerID = carid;
+                TYPE = ' ';
+                containerQueryResult = '';
+                cartype = 'TractorHead';
+            }
+
+            var jsonStr = {
+                ID: ContainerID.toUpperCase(),
+                carID: carid.toUpperCase(),
+                type: TYPE,
+                vendor: $scope.VendorNameIN,
+                driverName: $scope.DriverNameIN,
+                driverPhone: $scope.DriverPhoneIN,
+                reason: ' ',//$scope.Reason.type,
+                fab: mFab,
+                area: $scope.Location.name,
+                gate: '0',
+                status: containerQueryResult,
+                carType: cartype,//$scope.CarType.type
+                vendorID: $scope.GuestIdIN,
+                vendorcount: VendorCount
+            };
+            $http.post("@Url.Action("AddContainerInfo", "Home")", { jsonObj: JSON.stringify(jsonStr) }).success(function (response) {
+                if (response.status == 'NG') {
+                    alert(response.detail);
+
+                } else {
+
+                    //alert(JSON.stringify(jsonStr).replace('{', '').replace('}', '').replace(/\,/g, '\n'));
+                    alert('寫入成功');
+
+                }
+            }).error(function (response) {
+                alert(response);
+            });
+
+        };
+
+        $scope.addHistory = function () {
+            var containerQueryResult;
+            var ContainerID;
+            var VendorCount;
+            var jsonStr;
+            var mFab;
+
+            if ($scope.Location.name == 'Parking') {
+                mFab = 'T1';
+            } else if ($scope.Location.name == 'Center') {
+                mFab = 'T2';
+            } else {
+                mFab = $scope.Fab;
+            }
+
+            if ($scope.TruckIN || $scope.emptyTruckIN || $scope.chkContainerIN || $scope.chkGuestIN) {
+
+                //進場//
+
+
+
+                if ($scope.TruckIN) {
+                    VendorCount = '0';
+                    carid = $scope.CarIdIN.replace('-', '');;
+                    ContainerID = carid;
+                    containerQueryResult = '';
+                    cartype = 'Truck';
+                } else if ($scope.chkContainerIN) {
+
+                    containerQueryResult = $scope.containerQueryResult;
+
+                    VendorCount = '0';
+                    ContainerID = $scope.ContainerIdIN;
+                    carid = '';
+                    cartype = 'Container';
+                } else if ($scope.chkGuestIN) {
+                    carid = $scope.CarIdIN.replace('-', '');
+                    ContainerID = carid;
+                    VendorVount: $scope.GuestNumID;
+                    containerQueryResult = '';
+                    cartype = 'Guest';
+                } else if ($scope.emptyTruckIN) {
+                    VendorCount = '';
+                    //carid = 'TractorHead';//空車頭carid=tractor head
+                    carid = $scope.CarIdIN.replace('-', '');
+                    ContainerID = carid;
+                    containerQueryResult = '';
+                    cartype = 'TractorHead';
+                }
+
+
+                jsonStr = {
+                    container_id: ContainerID.replace('-', '').toUpperCase(),
+                    car_id: carid.replace('-', '').toUpperCase(),
+                    container_type: $scope.ContainerTypeIN,
+                    driverName: $scope.DriverNameIN,
+                    driverPhone: $scope.DriverPhoneIN,
+                    vendor_name: $scope.VendorNameIN,
+                    reason: '',
+                    fab: mFab,
+                    area: $scope.Location.name,
+                    gate: '0',
+                    container_status: containerQueryResult,
+                    car_type: cartype
+                };
+                jsonStr.fab = $scope.Fab;
+                jsonStr.area = 'Enter';
+                $http.post("@Url.Action("AddContainerHistory", "Home")", { jsonObj: JSON.stringify(jsonStr) }).success(function (response) {
+                    if (response.status == 'NG') {
+                        alert(response.detail);
+
+                    } else {
+
+                        //alert(response.status);
+
+                    }
+                }).error(function (response) {
+                    alert(response);
+                });
+                jsonStr.fab = mFab;
+                jsonStr.area = $scope.Location.name;
+
+            } else if ($scope.TruckOUT || $scope.emptyTruckOUT || $scope.chkContainerOUT || $scope.chkGuestOUT) {
+                //離場//
+                //if ($scope.Location.name == 'Parking') {
+                //    var Fab = 'T1';
+                //} else {
+                //    var Fab = 'T2';
+                //}
+
+
+                var AREA = 'Leave'
+                if ($scope.TruckOUT) {
+                    VendorCount = '0';
+                    carid = $scope.TagID;
+                    ContainerID = carid;
+                    containerQueryResult = '';
+                    cartype = 'Truck';
+                } else if ($scope.chkContainerOUT) {
+                 @*   $http.post("@Url.Action("GetContainer", "Home")", { id: $scope.ContainerIdIN }).success(function (response) {
+                        containerQueryResult = response.status;
+                    }).error(function (response) {
+                        alert(response);
+                    });*@
+                    VendorCount = '0';
+                    ContainerID = $scope.TagID;
+                    carid = '';
+                    cartype = 'Container';
+                } else if ($scope.chkGuestOUT) {
+                    carid = $scope.CarIdOUT.replace('-', '');
+                    ContainerID = carid;
+                    //VendorVount: $scope.GuestNumID;
+                    containerQueryResult = '';
+                    cartype = 'Guest';
+                } else if ($scope.emptyTruckOUT) {
+                    VendorCount = '';
+                    //carid = 'TractorHead';//空車頭carid=tractor head
+                    carid = $scope.CarIdOUT.replace('-', '');
+                    ContainerID = carid;
+                    containerQueryResult = '';
+                    cartype = 'TractorHead';
+                }
+            jsonStr = {
+                container_id: ContainerID.replace('-', '').toUpperCase(),
+                car_id: carid.replace('-', '').toUpperCase(),
+                container_type: '',
+                driverName: $scope.DriverNameOUT,
+                driverPhone: $scope.DriverPhoneOUT,
+                vendor_name: $scope.VendorNameOUT,
+                reason: '',
+                fab: mFab,
+                area: AREA,
+                gate: '0',
+                container_status: containerQueryResult,
+                car_type: cartype
+            };
+
+        }
+
+            $http.post("@Url.Action("AddContainerHistory", "Home")", { jsonObj: JSON.stringify(jsonStr) }).success(function (response) {
+                if (response.status == 'NG') {
+                    alert(response.detail);
+
+                } else {
+
+                    //alert(response.status);
+
+                }
+            }).error(function (response) {
+                alert(response);
+            });
+        };
+        //-------
+
+
+        $scope.WriteTagINsubmit = function () {
+
+
+            if ($scope.chkContainerIN) {
+                $scope.writeTag($scope.ContainerIdIN.toUpperCase());
+            } else if ($scope.TruckIN) {
+                $scope.writeTag($scope.CarIdIN.replace('-', '').toUpperCase());
+            }
+
+
+        };
+
+        $scope.SaveFileINsubmit = function () {
+
+            $scope.addInfo();
+            $scope.addHistory();
+            $scope.clear();
+        };
+
+        $scope.submitOut = function () {
+            if ($scope.TruckOUT || $scope.chkContainerOUT) {
+                $scope.writeTag(' ');
+            } else {
+                $scope.updateinfo();
+                $scope.addHistory();
+                $scope.clear();
+            }
+
+        };
+
+        $scope.updateinfo = function () {//containerinfo DB
+
+
+            var containierid = '';
+            if ($scope.TruckOUT || $scope.chkContainerOUT) {
+                containierid = $scope.TagID.replace('-', '');   //GET TAG DATA(container ID) 
+
+            }
+            // "TruckOUT emptyTruckOUT  chkContainerOUT  chkGuestOUT"
+            if ($scope.chkGuestOUT || $scope.emptyTruckOUT) {
+                containierid = $scope.CarIdOUT.replace('-', '');
+            }
+            if ($scope.TruckOUT || $scope.chkContainerOUT || $scope.chkGuestOUT || $scope.emptyTruckOUT) {
+                var jsonStr = {
+                    ID: containierid,
+                    VENDORID: $scope.GuestIdOUT.toUpperCase(),
+                    vendor: $scope.VendorNameOUT,
+                    driverName: $scope.DriverNameOUT,
+                    driverPhone: $scope.DriverPhoneOUT,
+                };
+                $http.post("@Url.Action("updateContainerInfo", "Home")", { jsonObj: JSON.stringify(jsonStr) }).success(function (response) {
+                    if (response.status == 'NG') {
+                        alert(response.detail);
+                    } else {
+                        alert(JSON.stringify(jsonStr).replace('{', '').replace('}', '').replace(/\,/g, '\n'));
+                        alert('寫入成功');
+                    }
+                })
+
+            }
+
+        };
+        $scope.getVendorDetailOUT = function () {
+            $http.post("@Url.Action("getVendorDetail", "Home")", { guestID: $scope.GuestIdOUT }).success(function (response) {
+
+                $scope.VendorDetailOUT = 'false';
+                var detail = JSON.parse(response);
+                if ($scope.GuestIdOUT == "") {
+                    $scope.VendorDetailOUT = 'false';
+                } else if (detail.length > 0) {
+
+                    $scope.VendorNameOUT = detail[0].VENDORNAME;
+                    $scope.DriverNameOUT = detail[0].DRIVERNAME;
+                    $scope.DriverPhoneOUT = detail[0].DRIVERPHONE;
+
+                    $scope.VendorDetailOUT = 'true';
+                } else if (detail.length == 0) {
+                    $scope.VendorNameOUT = "查無人員資料";
+                    $scope.DriverNameOUT = "查無人員資料";
+                    $scope.DriverPhoneOUT = "查無人員資料";
+                    $scope.VendorDetailOUT = 'true';
+                }
+
+
+            }).error(function (response) {
+                alert(response);
+            });
+        };
+
+
+        $scope.LocationModel = [{ name: '', desc: '請選擇...' },
+                        { name: 'WH', desc: 'WH+OB' },
+                        { name: 'SB', desc: '外圍' },
+                        { name: 'Parking', desc: '訪客區' }];
+        $scope.TypeModel = ['',
+                    '40HQ',
+                    '20RF'];
+        $scope.GuestNumMode = ['請選擇人數',
+                    '1', '2', '3', '4', '5', '6'];
+
+        $scope.tid = '';
+
+
+        $scope.writeTag = function (tagID) {
+            var jsonStr = {
+                action: 'WRITE',
+                param: '',
+                status: '',
+                content: '',
+                tid: $scope.WriterLocation + $scope.getNow()
+            };
+            var carType = '';
+            if ($scope.chkContainerIN) {
+                carType = 'C';
+            } else if ($scope.TruckIN) {
+                carType = 'T';
+            }
+
+            var id = carType + tagID;
+
+            var i;
+            var asciiCode = '';
+            for (i = 0; i < id.length; i++) {
+
+                asciiCode = asciiCode + id.charCodeAt(i).toString(16).toUpperCase();
+            }
+            for (i = 0; i < 12 - id.length; i++) {
+                asciiCode = asciiCode + "20";
+            }
+            jsonStr.param = asciiCode;
+            $scope.tid = jsonStr.tid;
+            $scope.chat.server.send($scope.WriterLocation, JSON.stringify(jsonStr));
+            $scope.disableButton = true;
+            $scope.writeBtnText = '執行中...';
+            $scope.readBtnText = '執行中...';
+            //setTimeout(function () {
+            //    if ($scope.tid != '') {
+            //        alert("沒有偵測到Tag，請檢查程式是否開啟，或Tag是否沒有放在正確位置。");
+            //        $scope.disableButton = false;
+            //        $scope.writeBtnText = '寫入標籤';
+            //        $scope.readBtnText = '離廠';
+            //        $scope.$apply();
+            //    }
+            //}, 40000);
+        };
+
+        $scope.read = function () {
+            var jsonStr = {
+                action: 'READ',
+                param: '',
+                status: '',
+                content: '',
+                tid: $scope.WriterLocation + $scope.getNow()
+            };
+            
+            $scope.tid = jsonStr.tid;
+            $scope.chat.server.send($scope.WriterLocation, JSON.stringify(jsonStr));
+            $scope.disableReadButton = true;
+            $scope.readButtonText = '讀取中...';
+            //setTimeout(function () {
+            //    if ($scope.tid != '') {
+            //        alert("沒有偵測到Tag，請檢查程式是否開啟，或Tag是否沒有放在正確位置。");
+            //        $scope.disableButton = false;
+            //        $scope.readBtnText = '離廠';
+            //        $scope.$apply();
+            //    }
+            //}, 20000);
+        };
+
+        $scope.chat = $.connection.signalRHub;
+        // Create a function that the hub can call back to display messages.
+        $scope.chat.client.addNewMessageToPage = function (name, message) {
+            var messageObj = JSON.parse(message);
+            if (name == $scope.WriterLocation) {
+                if (messageObj.tid != undefined) {
+                    if ($scope.tid == messageObj.tid && messageObj.status != '') {
+                        //if (true) {
+                        if (messageObj.status == 'OK') {
+                            if (messageObj.action == 'READ') {
+
+                                $scope.TagID = '';
+                                for (var i = 2; i < messageObj.content.length; i = i + 2) {
+                                    var hex = messageObj.content.substring(i, i + 2);
+                                    var decimal = parseInt(hex, 16);
+                                    $scope.TagID += String.fromCharCode(decimal);
+                                }
+                                $scope.TagID = $scope.TagID.trim();
+
+                                $scope.disableReadButton = false;
+                                $scope.readButtonText = '讀取標籤';
+                                $scope.tid = '';
+                                if (!$scope.chkContainerOUT) {
+                                    $http.post("@Url.Action("GetContainerInfo", "Home")", { containerID: $scope.TagID }).success(function (response) {
+                                        if (response.ID != undefined) {
+                                            $scope.GuestIdOUT = response.ID;
+                                            $scope.VendorNameOUT = response.vendor;
+                                            $scope.DriverNameOUT = response.driverName;
+                                            $scope.DriverPhoneOUT = response.driverPhone;
+                                        }
+                                    }).error(function (response) {
+                                        alert(response);
+                                    });
+                                }
+                                $scope.$apply();
+                            } else
+                                if (messageObj.action == 'WRITE') {
+                                    //alert('成功');
+                                    $scope.disableButton = false;
+                                    $scope.writeBtnText = '寫入標籤';
+                                    $scope.readBtnText = '離廠';
+
+                                    if ($scope.inPage) {//進場
+                                        $scope.addInfo();
+                                    } else if ($scope.outPage) {//出場
+                                        $scope.updateinfo();
+                                    }
+                                    $scope.addHistory();
+                                    $scope.clear();
+                                    $scope.tid = '';
+                                }
+                        } else if (messageObj.status == 'NG') {
+                            alert(messageObj.content);
+                            alert('寫入失敗');
+                            $scope.disableButton = false;
+                            $scope.writeBtnText = '寫入標籤';
+                            $scope.readBtnText = '離廠';
+                            $scope.tid = '';
+                        }
+
+                    }
+                }
+            }
+        };
+
+        $.connection.hub.start().done(function () {
+            //chat.server.send('book1', '1155');
+
+
+        });
+        //Reconnect signalR after 5 second, when signalR is disconnected.
+        $.connection.hub.disconnected(function () {
+            setTimeout(function () {
+                $.connection.hub.start();
+            }, 5000);
+        });
+
+        $scope.getLocation = function () {
+            $http.post("@Url.Action("GetHostName", "Home")", {}).success(function (response) {
+                var computerName = response.toUpperCase();
+                switch (computerName) {
+                    case 'CNEB3301':
+                        $scope.WriterLocation = 'T1SecurityWriter';
+                        $scope.Fab = 'T1';
+                        break;
+                    case 'CNEB2399':
+                        $scope.WriterLocation = 'T2SecurityWriter';
+                        $scope.Fab = 'T2';
+                        break;
+                    case 'BC-T1BCPROJECT':
+                        $scope.WriterLocation = 'T2DevWriter';
+                        $scope.Fab = 'T2';
+                        break;
+                    case 'T2-CIM02':
+                        $scope.WriterLocation = 'T2CIMWriter';
+                        $scope.Fab = 'T2';
+                        break;
+                    default:
+                        $scope.WriterLocation = 'T2CIMWriter';
+                        $scope.Fab = 'T2';
+                        break;
+                }
+            }).error(function (response) {
+                $scope.WriterLocation = 'T2CIMWriter';
+                $scope.Fab = 'T2';
+                //alert(response);
+            });
+        };
+
+
+        $scope.getNow = function () {
+            var today = new Date();
+            var currentDateTime = '' +
+            today.getFullYear() +
+            (today.getMonth() + 1) +
+            today.getDate() +
+            today.getHours() + today.getMinutes() + today.getSeconds();
+            return currentDateTime;
+        };
+
+        $("nav a").click(function () {
+
+            $scope.clear();
+        })
+        $scope.CTINKeyup = function () {
+            $scope.ContainerIdIN = $scope.ContainerIdIN.toUpperCase();
+            $scope.ContainerIdIN = $scope.ContainerIdIN.replace(/[^-_A-Z0-9]/g, '');
+        }
+
+        $scope.TKINKeyup = function () {
+            $scope.CarIdIN = $scope.CarIdIN.toUpperCase();
+            $scope.CarIdIN = $scope.CarIdIN.replace(/[^-_A-Z0-9]/g, '');
+        }
+
+        $scope.getLocation();
+
+        $scope.checkboxChange = function () {
+            $scope.clearIn();
+
+        }
+
+        $scope.checkboxOutChange = function () {
+            $scope.clearOut();
+
+        }
+
+        $scope.clearOut = function () {
+            $scope.VendorNameOUT = '';
+            $scope.DriverNameOUT = '';
+            $scope.DriverPhoneOUT = '';
+
+            $scope.CarIdOUT = '';
+
+            $scope.GuestIdOUT = '';
+            $scope.TagID = '';
+        }
+
+        $scope.clearIn = function () {
+            $scope.VendorNameIN = '';
+            $scope.DriverNameIN = '';
+            $scope.DriverPhoneIN = '';
+
+            $scope.ContainerIdIN = '';
+            $scope.CarIdIN = '';
+
+            GuestIdIN = '';
+
+            $scope.ContainerTypeIN = $scope.TypeModel[0];
+
+            $scope.GuestNumIN = $scope.GuestNumMode[0];
+
+            $scope.Location = $scope.LocationModel[0];
+        }
+
+    });
+
+    function checkContainerID(id) {
+        if (id.length < 11) {
+            alert('貨櫃號碼長度不符');
+            return false;
+        }
+        if (id.substring(3, 4) != "U") {
+            alert('貨櫃第四碼必須為"U"');
+            return false;
+        }
+        var code1 = getCode(id.substring(0, 1));
+        var code2 = getCode(id.substring(1, 2));
+        var code3 = getCode(id.substring(2, 3));
+        var code4 = getCode(id.substring(3, 4));
+        var code5 = parseInt(id.substring(4, 5));
+        var code6 = parseInt(id.substring(5, 6));
+        var code7 = parseInt(id.substring(6, 7));
+        var code8 = parseInt(id.substring(7, 8));
+        var code9 = parseInt(id.substring(8, 9));
+        var code10 = parseInt(id.substring(9, 10));
+        var code11 = parseInt(id.substring(10, 11));
+
+        var checkCode = code1 * Math.pow(2, 0);
+        checkCode = checkCode + code2 * Math.pow(2, 1);
+        checkCode = checkCode + code3 * Math.pow(2, 2);
+        checkCode = checkCode + code4 * Math.pow(2, 3);
+        checkCode = checkCode + code5 * Math.pow(2, 4);
+        checkCode = checkCode + code6 * Math.pow(2, 5);
+        checkCode = checkCode + code7 * Math.pow(2, 6);
+        checkCode = checkCode + code8 * Math.pow(2, 7);
+        checkCode = checkCode + code9 * Math.pow(2, 8);
+        checkCode = checkCode + code10 * Math.pow(2, 9);
+
+        checkCode = checkCode / 11;
+        checkCode = checkCode - Math.floor(checkCode);
+        checkCode = checkCode * 11;
+        checkCode = Math.round(checkCode);
+        if (checkCode >= 10) {
+            checkCode = checkCode - 10;
+        }
+        if (code11 == checkCode) {
+            if (id.substring(0, 1) == "J" || id.substring(0, 1) == "L" || id.substring(0, 1) == "Q" || id.substring(0, 1) == "V") {
+                alert('請再次確認櫃號');
+                
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+    function getCode(input) {
+        switch (input) {
+            case 'A':
+                return 10;
+                break;
+            case 'B':
+                return 12;
+                break;
+            case 'C':
+                return 13;
+                break;
+            case 'D':
+                return 14;
+                break;
+            case 'E':
+                return 15;
+                break;
+            case 'F':
+                return 16;
+                break;
+            case 'G':
+                return 17;
+                break;
+            case 'H':
+                return 18;
+                break;
+            case 'I':
+                return 19;
+                break;
+            case 'J':
+                return 20;
+                break;
+            case 'K':
+                return 21;
+                break;
+            case 'L':
+                return 23;
+                break;
+            case 'M':
+                return 24;
+                break;
+            case 'N':
+                return 25;
+                break;
+            case 'O':
+                return 26;
+                break;
+            case 'P':
+                return 27;
+                break;
+            case 'Q':
+                return 28;
+                break;
+            case 'R':
+                return 29;
+                break;
+            case 'S':
+                return 30;
+                break;
+            case 'T':
+                return 31;
+                break;
+            case 'U':
+                return 32;
+                break;
+            case 'V':
+                return 34;
+                break;
+            case 'W':
+                return 35;
+                break;
+            case 'X':
+                return 36;
+                break;
+            case 'Y':
+                return 37;
+                break;
+            case 'Z':
+                return 38;
+                break;
+        }
+    }
+
+
+</script>
+
+<style>
+    md-checkbox {
+        float: left;
+    }
+</style>
+
+<div class="row" ng-app="InOutSiteGo" ng-controller="InOutSiteGo">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><strong>車輛進出登錄系統</strong></h3>
+            </div>
+
+            <div class="panel-body">
+
+                <ul class="nav nav-pills">
+                    <li class="active">
+                        <a data-toggle="tab" ng-click="clear()" href="#in">進廠</a>
+                    </li>
+                    <li>
+                        <a data-toggle="tab" ng-click="clear()" href="#out">離廠</a>
+                    </li>
+                </ul>
+
+
+                <div class="tab-content">
+                    <div id="in" class="tab-pane fade in active">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="checkbox">
+                                    <label class="checkbox-inline">
+                                        <md-checkbox ng-init="chkContainerIN=false" ng-model="chkContainerIN" ng-change="TruckIN=false;emptyTruckIN=false;chkGuestIN=false;checkboxChange();">
+                                        貨櫃
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <md-checkbox ng-init="TruckIN=false" ng-model="TruckIN" ng-change="chkContainerIN=false;emptyTruckIN=false;chkGuestIN=false;checkboxChange();">
+                                        貨車
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <md-checkbox ng-init="emptyTruckIN=false" ng-model="emptyTruckIN" ng-change="chkContainerIN=false;TruckIN=false;chkGuestIN=false;checkboxChange();">
+                                        空車頭
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <md-checkbox ng-init="chkGuestIN=false" ng-model="chkGuestIN" ng-change="chkContainerIN=false;TruckIN=false;emptyTruckIN=false;checkboxChange();">
+                                        訪客
+                                    </label>
+                                </div>
+                                @*<div class="form-group">
+                                    <div class="checkbox">
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" ng-init="chkContainerIN=false" ng-model="chkContainerIN" ng-change="TruckIN=false;emptyTruckIN=false;chkGuestIN=false;checkboxChange();">貨櫃</label>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" ng-init="TruckIN=false" ng-model="TruckIN" ng-change="chkContainerIN=false;emptyTruckIN=false;chkGuestIN=false;checkboxChange();">貨車</label>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" ng-init="emptyTruckIN=false" ng-model="emptyTruckIN" ng-change="chkContainerIN=false;TruckIN=false;chkGuestIN=false;checkboxChange();">空車頭</label>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" ng-init="chkGuestIN=false" ng-model="chkGuestIN" ng-change="chkContainerIN=false;TruckIN=false;TruckIN=false;checkboxChange();">訪客</label>
+                                    </div>
+                                </div>*@
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>
+                                        貨櫃/車牌號碼
+                                    </label>
+                                    <input maxlength="11" ng-keyup="CTINKeyup()" type="text" class="form-control" ng-blur="getCarInfoIN()" ng-init="ContainerIdIN=''" ng-model="ContainerIdIN" ng-show="chkContainerIN" placeholder="請輸入 貨櫃號碼">
+                                    <input type="text" class="form-control" maxlength="7" ng-keyup="TKINKeyup()" ng-model="CarIdIN" ng-init="CarIdIN=''" ng-show="chkGuestIN || TruckIN || emptyTruckIN" placeholder="請輸入 車牌號碼">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>
+                                        識別ID
+                                    </label>
+                                    <input type="text" class="form-control" placeholder="人員身分證" ng-init="inPage=false;outPage=false;" ng-show="TruckIN || emptyTruckIN || chkGuestIN || chkContainerIN" ng-model="GuestIdIN" ng-init="GuestIdIN=''" onkeyup="value=value.toUpperCase()" ng-blur="getVendorDetailIN()">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sel1">地點</label>
+                                    <select class="form-control" ng-model="Location" ng-show="TruckIN || emptyTruckIN || chkGuestIN || chkContainerIN" ng-init="Location=LocationModel[0]" ng-options="each.desc for each in LocationModel">
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary" ng-model="WtiteTagIN" ng-show="((TruckIN && CarIdIN) || (chkContainerIN && ContainerTypeIN != '' && ContainerIdIN)) && (VendorNameIN && VendorNameIN != '查無人員資料') && Location.name != ''" ng-click="inPage=true;outPage=false;WriteTagINsubmit()" ng-init="disableButton = false;writeBtnText='寫入'" ng-disabled="disableButton">{{writeBtnText}}</button>
+                                    <button type="submit" class="btn btn-primary" ng-model="SaveFileIN" ng-show="(emptyTruckIN || (chkGuestIN && GuestNumIN != '請選擇人數')) && CarIdIN && (VendorNameIN && VendorNameIN != '查無人員資料') && Location.name != ''" ng-init="disableButton1 = false" ng-disabled="disableButton1" ng-click="inPage=true;outPage=false;SaveFileINsubmit()">存檔</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div ng-show="chkContainerIN">
+
+                                        <label for="sel1">貨櫃種類</label>
+                                        <select class="form-control" ng-model="ContainerTypeIN" ng-init="ContainerTypeIN=TypeModel[0]" ng-options="eachType for eachType in TypeModel">
+                                        </select>
+                                    </div>
+                                    <div ng-show="chkGuestIN">
+                                        <label>人數</label>
+                                        <select class="form-control" ng-model="GuestNumIN" ng-init="GuestNumIN=GuestNumMode[0]" ng-options="eachType for eachType in GuestNumMode">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title"><strong>基本資料</strong></h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <form class="row form-horizontal">
+                                                <div class="form-group">
+                                                    <label class="col-sm-3 control-label">廠商名稱</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="" ng-model="VendorNameIN" disabled="disabled">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-3 control-label">司機姓名</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="" ng-model="DriverNameIN" disabled="disabled">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-3 control-label">司機電話</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="" ng-model="DriverPhoneIN" disabled="disabled">
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div id="out" class="tab-pane fade">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="checkbox">
+                                        <label class="checkbox-inline">
+                                            <md-checkbox ng-init="chkContainerOUT=false" ng-model="chkContainerOUT" ng-change="TruckOUT=false;emptyTruckOUT=false;chkGuestOUT=false;checkboxOutChange();">
+                                            貨櫃
+                                        </label>
+                                        <label class="checkbox-inline">
+                                            <md-checkbox ng-init="TruckOUT=false" ng-model="TruckOUT" ng-change="chkContainerOUT=false;emptyTruckOUT=false;chkGuestOUT=false;checkboxOutChange();">
+                                            貨車
+                                        </label>
+                                        <label class="checkbox-inline">
+                                            <md-checkbox ng-init="emptyTruckOUT=false" ng-model="emptyTruckOUT" ng-change="chkContainerOUT=false;TruckOUT=false;chkGuestOUT=false;checkboxOutChange();">
+                                            空車頭
+                                        </label>
+                                        <label class="checkbox-inline">
+                                            <md-checkbox ng-init="chkGuestOUT=false" ng-model="chkGuestOUT" ng-change="chkContainerOUT=false;TruckOUT=false;emptyTruckOUT=false;checkboxOutChange();">
+                                            訪客
+                                        </label>
+                                    </div>
+                                    @*<div class="checkbox">
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" ng-model="chkContainerOUT" ng-disabled="TruckOUT || emptyTruckOUT || chkGuestOUT ">貨櫃</label>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" ng-model="TruckOUT" ng-disabled="emptyTruckOUT || chkContainerOUT || chkGuestOUT">貨車</label>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" ng-model="emptyTruckOUT" ng-disabled="TruckOUT ||  chkContainerOUT || chkGuestOUT">空車頭</label>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" ng-model="chkGuestOUT" ng-disabled="TruckOUT || chkContainerOUT ||emptyTruckOUT ">訪客</label>
+                                    </div>*@
+
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group" ng-show="TruckOUT || chkContainerOUT">
+                                    <input type="text" class="form-control" ng-init="TagID=''" ng-model="TagID" placeholder="標籤" disabled></label>
+                                        <div class="input-group-btn">
+                                            <button type="submit" class="btn btn-primary" ng-model="ReadTagOUT" ng-init="disableReadButton=false;readButtonText='讀取標籤';" ng-disabled="disableReadButton" ng-click="read()">{{readButtonText}}</button>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+
+                                <div class="form-group" ng-show="chkGuestOUT || emptyTruckOUT">
+                                    <label>
+                                        車牌號碼
+                                    </label>
+                                    <input type="text" class="form-control" ng-model="CarIdOUT" ng-init="CarIdOUT=''" placeholder="請輸入 車牌號碼">
+                                </div>
+
+                                <div class="form-group" ng-show="TruckOUT || emptyTruckOUT|| chkGuestOUT || chkContainerOUT">
+                                    <label>
+                                        識別ID
+                                    </label>
+                                    <input type="text" class="form-control" placeholder="人員身分證" ng-model="GuestIdOUT" ng-init="" onkeyup="value=value.toUpperCase()" ng-blur="getVendorDetailOUT()">
+                                </div>
+
+                                <div class="form-group" ng-show="(((emptyTruckOUT|| chkGuestOUT) && CarIdOUT) || ((TruckOUT || chkContainerOUT) && TagID)) && VendorNameOUT !='' && VendorNameOUT != '查無人員資料'">
+                                    <button type="submit" class="btn btn-danger" ng-click="inPage=false;outPage=true;submitOut() " ng-init="readBtnText='離廠'" ng-disabled="disableButton">
+                                        {{readBtnText}}
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="panel panel-default" ng-init="VendorDetailOUT =='true'">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title"><strong>基本資料</strong></h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <form class="row form-horizontal">
+                                                <div class="form-group">
+                                                    <label class="col-sm-3 control-label">廠商名稱</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="" ng-model="VendorNameOUT" ng-init="VendorNameOUT=''" disabled="disabled">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-3 control-label">司機姓名</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="" ng-model="DriverNameOUT" ng-init="DriverNameOUT=''" disabled="disabled">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-3 control-label">司機電話</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="" ng-model="DriverPhoneOUT" ng-init="DriverPhoneOUT=''" disabled="disabled">
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

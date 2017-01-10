@@ -1,0 +1,461 @@
+﻿<script src="~/Scripts/lodash.js"></script>
+<script src="~/Scripts/jszip.js"></script>
+<script src="~/Scripts/xlsx.js"></script>
+<script src="~/Scripts/xlsx-reader.js"></script>
+<script src="~/Scripts/alasql.min.js"></script>
+@*<script src="~/Scripts/xlsx.core.min.js"></script>*@
+<style>
+    .paginationclass {
+        margin: 19px 28px;
+    }
+
+        .paginationclass span {
+            margin-left: 15px;
+            display: inline-block;
+        }
+
+    .pagination-controle li {
+        display: inline-block;
+    }
+
+    .pagination-controle button {
+        font-size: 12px;
+        margin-top: -26px;
+        cursor: pointer;
+    }
+
+    .pagination {
+        margin: 5px 12px !important;
+    }
+</style>
+
+<script>
+
+    var VendorListApp = angular.module('VendorListApp', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+
+    var ttr = angular.module("VendorListApp").factory("XLSXReaderService", ['$q', '$rootScope', function ($q, $rootScope) {
+        var service = function (data) {
+            angular.extend(this, data);
+        }
+
+        service.readFile = function (file, readCells, toJSON) {
+            var deferred = $q.defer();
+
+            XLSXReader(file, readCells, toJSON, function (data) {
+                $rootScope.$apply(function () {
+                    deferred.resolve(data);
+                });
+            });
+
+            return deferred.promise;
+        }
+
+        return service;
+    }
+    ]);
+
+    angular.module('VendorListApp').filter('pagination', function () {
+        return function (input, start) {
+            start = +start;
+            return input.slice(start);
+        };
+    });
+
+    VendorListApp.controller('vendorListCtl', function ($scope, $http, XLSXReaderService, $mdDialog) {
+
+        var vm = this;
+        vm.showPreview = false; //以表格預覽
+        vm.showJSONPreview = true; //以json預覽
+        vm.items = [];//存放資料物件之陣列，一列為一個物件，key為欄名
+        vm.sheets = [];//工作表 array
+
+        //選擇檔案或選擇另一個檔案
+        //取得工作表 array
+        vm.fileChanged = function (files) {
+            vm.sheets = []; //工作表 array
+            vm.excelFile = files[0];//選擇之excel檔(.xlsx格式)
+            console.log(vm.excelFile);
+            XLSXReaderService.readFile(vm.excelFile, vm.showPreview, vm.showJSONPreview)
+                .then(function (xlsxData) {
+                    vm.sheets = xlsxData.sheets;
+                    console.log(vm.sheets);
+                });
+
+        };
+
+        //為了讓 view 中呼叫，bind to $scope
+        //$scope.fileChanged = vm.fileChanged;
+
+        // 選擇工作表時更新資料物件陣列
+        vm.updateItems = function () {
+            vm.items = vm.sheets[vm.selectedSheetName];
+        }
+
+        // 處理讀取到的資料物件陣列
+        // 在此傳送到server端
+        vm.ok = function () {
+            console.log(vm.items);
+        };
+
+        $scope.import = function () {
+
+
+
+            $http.post("@Url.Action("ImportVendorData", "Home")", { jsonObj: JSON.stringify(vm.items) }).success(function (response) {
+                if (response != 'OK') {
+                    //alert('錯誤訊息:' + response);
+                    $scope.showAlert('Information', '錯誤訊息:' + response);
+                } else {
+                    //alert('匯入成功');
+                    $scope.showAlert('Information','匯入成功');
+                    $scope.getVendorList();
+                }
+            }).error(function (response) {
+                //alert('錯誤訊息:' + response);
+                $scope.showAlert('Information', '錯誤訊息:' + response);
+            });
+
+        };
+
+        $scope.Export = function () {
+
+            alasql('SELECT * INTO XLSX("export.xlsx",{headers:true}) FROM ?', [$scope.vendorListModel]);
+        };
+
+        $scope.showAlert = function (a,b) {
+            $mdDialog.show(
+                      $mdDialog.alert()
+                        .parent(angular.element(document.querySelector('#popupContainer')))
+                        .clickOutsideToClose(true)
+                        .title(a)
+                        .textContent(b)
+                        .ariaLabel('Information')
+                        .ok('GOT IT!')
+                        //.targetEvent(ev)
+                    );
+        }
+
+        $scope.init = function () {
+            $('.dragInfo').draggable();
+            $(".dragInfo").css('left', $(window).width() * 1 / 3).css('top', 70);
+            $scope.curPage = 0;
+            $scope.pageSize = 11;
+            $scope.vendorListModel = [];
+        }
+        $scope.init();
+
+        $scope.$watch('keyValue', function (newValue, oldValue) {
+            if (newValue = '') { $scope.getVendorList(); }
+
+        }, true);
+
+        $scope.getVendorList = function () {
+
+            $http.post("@Url.Action("getVendorList", "Home")", {}).success(function (response) {
+
+                var data = JSON.parse(response);
+                $scope.vendorListModel = data;
+
+            }).error(function (response) {
+                alert(response);
+            });
+        };
+
+        $scope.numberOfPages = function () {
+            return Math.ceil($scope.vendorListModel.length / $scope.pageSize);
+        };
+
+        $scope.getVendorSearch = function () {
+            if ($scope.keyValue != '') {
+                $http.post("@Url.Action("getVendorOnly", "Home")", { key: $scope.keyValue.toUpperCase() }).success(function (response) {
+
+                var data = JSON.parse(response);
+                if (data.length > 0) {
+                    $scope.vendorListModel = data;
+                    $scope.curPage = 0;
+                } else {
+                    $scope.getVendorList();
+                    //alert("查無資料");
+                    $scope.showAlert('Information', '查無資料');
+                }
+            }).error(function (response) {
+                alert(response);
+            });
+        } else { $scope.getVendorList(); }
+
+        };
+
+        $scope.ModifyData = function (vendor) {
+            $scope.isInfoShow = true;
+            //showVENDORID showVENDORNAME  showDRIVERNAME showDRIVERPHONE  showUPDATETIME
+            //$scope.showVENDORID = 'AAABBB';
+            $scope.showVENDORID = vendor.VENDORID;
+            $scope.showVENDORNAME = vendor.VENDORNAME;
+            $scope.showDRIVERNAME = vendor.DRIVERNAME;
+            $scope.showDRIVERPHONE = vendor.DRIVERPHONE;
+            $scope.showUPDATETIME = vendor.UPDATETIME;
+
+        }
+
+        $scope.showOK = function () {
+            $scope.isInfoShow = true;
+            //showVENDORID showVENDORNAME  showDRIVERNAME showDRIVERPHONE  showUPDATETIME
+            //$scope.showVENDORID = 'AAABBB';
+
+            if ($scope.showVENDORID != '') {
+                var jsonStr = {
+                    VENDORID: $scope.showVENDORID.toUpperCase(),
+                    VENDORNAME: $scope.showVENDORNAME.toUpperCase(),
+                    DRIVERNAME: $scope.showDRIVERNAME.toUpperCase(),
+                    DRIVERPHONE: $scope.showDRIVERPHONE,
+                    CARID: $scope.showCARID
+                };
+                if (jsonStr.CARID != null) {
+                    jsonStr.CARID = jsonStr.CARID.toUpperCase();
+                }
+
+                $http.post("@Url.Action("ModifyVendorData", "Home")", { jsonObj: JSON.stringify(jsonStr) }).success(function (response) {
+
+                    //alert("修改成功");
+                    $scope.showAlert('Information', '修改成功');
+                    $scope.showVENDORID = '';
+                    $scope.showVENDORNAME = '';
+                    $scope.showDRIVERNAME = '';
+                    $scope.showDRIVERPHONE = '';
+                    $scope.showUPDATETIME = '';
+                    $scope.getVendorSearch();
+
+                }).error(function (response) {
+                    alert(response);
+                });
+            }
+
+
+            $scope.isInfoShow = false
+        }
+
+        $scope.showCancel = function () {
+            $scope.isInfoShow = true;
+            //showVENDORID showVENDORNAME  showDRIVERNAME showDRIVERPHONE  showUPDATETIME
+            //$scope.showVENDORID = 'AAABBB';
+            $scope.showVENDORID = '';
+            $scope.showVENDORNAME = '';
+            $scope.showDRIVERNAME = '';
+            $scope.showDRIVERPHONE = '';
+            $scope.showUPDATETIME = '';
+
+
+            $scope.isInfoShow = false
+        }
+
+
+
+        $scope.DelData = function (Vendor) {
+
+            $http.post("@Url.Action("DeleteVendorData", "Home")", { jsonObj: JSON.stringify(Vendor) }).success(function (response) {
+
+                if ($scope.keyValue != null) {
+                    $scope.getVendorSearch();
+                } else {
+                    $scope.getVendorList();
+                }
+                //alert("刪除成功");
+                $scope.showAlert('Information', '刪除成功');
+            }).error(function (response) {
+                alert(response);
+            });
+
+        }
+
+        $scope.addVendorData = function () {
+            $scope.isInfoShow = true;
+
+        }
+
+
+        //        $('input[type=file]').bootstrapFileInput();
+        //$('.file-inputs').bootstrapFileInput();
+
+
+    });
+
+</script>
+
+<div class="row" id="popupContainer" ng-app="VendorListApp" ng-controller="vendorListCtl as Ctrl">
+
+    <div class='panel panel-default dragInfo' ng-show="showImport" ng-init="showImport = false" style="position: absolute; z-index: 99; /*height: 600px; width: 800px; */  -moz-box-shadow: 0px 0px 8px #363636; -webkit-box-shadow: 0px 0px 8px #363636; box-shadow: 0px 0px 8px #363636;">
+        <div class='panel-heading'>
+            <i class='icon-edit icon-large'></i>
+            <strong>EXCEL匯入</strong>
+        </div>
+        <div class='panel-body'>
+
+            <input type="file" accept=".xlsx,.xls"
+                onchange="angular.element(this).scope().Ctrl.fileChanged(this.files);" class="btn btn-primary" />
+
+            <br />
+
+            <select
+                class="form-control"
+                ng-change="Ctrl.updateItems()"
+                ng-model="Ctrl.selectedSheetName"
+                ng-options="sheetName as sheetName for (sheetName, sheetData) in Ctrl.sheets">
+
+                <option value="">---- 選擇工作表 ----</option>
+
+            </select>
+
+            <ul>
+                @*<li ng-repeat="item in Ctrl.items">{{ item | json }}
+                </li>*@
+                <li>總共有{{Ctrl.items.length}}筆</li>
+            </ul>
+
+            <div class='form-actions'>
+                <button class='btn btn-primary' type='submit' ng-click="import();showImport=false;">確定</button>
+                <button class='btn btn-warning' type='submit' ng-click="showImport=false">取消</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class='panel panel-default dragInfo' ng-show="isInfoShow" ng-init="isInfoShow = false" style="position: absolute; z-index: 99; height: 220px; width: 600px; -moz-box-shadow: 0px 0px 8px #363636; -webkit-box-shadow: 0px 0px 8px #363636; box-shadow: 0px 0px 8px #363636;">
+        <div class='panel-heading'>
+            <i class='icon-edit icon-large'></i>
+            <strong>廠商資料</strong>
+        </div>
+        <div class='panel-body'>
+
+            <table class='table'>
+                <thead>
+                    <tr>
+                        <th>識別ID</th>
+                        <th>廠商名稱</th>
+                        <th>司機姓名</th>
+                        <th>司機電話</th>
+                        <th>車牌號碼</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+
+                        <td>
+                            <input type="text" class="form-control" ng-model="showVENDORID" onkeyup="value=value.toUpperCase() ">
+                        </td>
+
+                        <td>
+                            <input type="text" class="form-control" ng-model="showVENDORNAME" onkeyup="value=value.toUpperCase() ">
+                        </td>
+
+                        <td>
+                            <input type="text" class="form-control" ng-model="showDRIVERNAME" onkeyup="value=value.toUpperCase() ">
+                        </td>
+
+                        <td>
+                            <input type="text" class="form-control" ng-model="showDRIVERPHONE" onkeyup="value=value.toUpperCase() ">
+                        </td>
+
+                        <td>
+                            <input type="text" class="form-control" ng-model="showCARID" onkeyup="value=value.toUpperCase() ">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <div class='form-actions'>
+                <button class='btn btn-primary' type='submit' ng-click="showOK()">確定</button>
+                <button class='btn btn-warning' type='submit' ng-click="showCancel()">取消</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><strong>廠商主檔</strong></h3>
+            </div>
+
+            <div class="panel-body">
+                <div class="row form-group">
+                    <div class="col-md-6 col-md-offset-1">
+                        <input type="text" class="form-control" placeholder="識別 ID / 司機姓名 / 電話 / 廠商" ng-model="keyValue" onkeyup="value=value.toUpperCase()" ng-init="keyValue=''" ng-blur="">
+                    </div>
+                    <div class="col-md-1 ">
+                        <button class="btn btn-success" ng-click="getVendorSearch()" ng-init="getVendorList() " ng-disabled="">搜尋</button>
+                    </div>
+                    <div class="col-md-1 ">
+                        <button class="btn btn-primary" ng-click="addVendorData()">新增</button>
+                    </div>
+                    <div class="col-md-1 ">
+                        <button class="btn btn-primary" ng-click="showImport=true">匯入</button>
+                    </div>
+                    <div class="col-md-1 ">
+                        <button class="btn btn-primary" ng-click="Export()">匯出</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12  ">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+
+                                    <th>識別ID</th>
+                                    <th>廠商名稱</th>
+                                    <th>司機姓名</th>
+                                    <th>司機電話</th>
+                                    <th>車牌</th>
+                                    <th>修改日期</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="vendor in vendorListModel | pagination: curPage * pageSize | limitTo: pageSize">
+
+                                    <td>{{vendor.VENDORID}}</td>
+                                    <td>{{vendor.VENDORNAME}}</td>
+                                    <td>{{vendor.DRIVERNAME}}</td>
+                                    <td>{{vendor.DRIVERPHONE}}</td>
+                                    <td>{{vendor.CARID}}</td>
+                                    <td>{{vendor.UPDATETIME}}</td>
+                                    <td>
+                                        <button type="submit" class="btn btn-info" ng-click="ModifyData(vendor)">修改</button></td>
+                                    <td>
+                                        <button type="submit" class="btn btn-warning" ng-click="DelData(vendor)">刪除</button></td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+                        <div class="pagination pagination-centered" ng-show="vendorListModel.length">
+                            <ul class="pagination-controle pagination">
+                                <li>
+                                    <button type="button" class="btn btn-primary" ng-disabled="curPage == 0"
+                                        ng-click="curPage=curPage-1">
+                                        &lt; PREV</button>
+                                </li>
+                                <li>
+                                    <span>Page {{curPage + 1}} of {{ numberOfPages() }}</span>
+                                </li>
+                                <li>
+                                    <button type="button" class="btn btn-primary"
+                                        ng-disabled="curPage >= vendorListModel.length/pageSize - 1"
+                                        ng-click="curPage = curPage+1">
+                                        NEXT &gt;</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>

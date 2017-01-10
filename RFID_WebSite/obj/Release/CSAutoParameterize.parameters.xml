@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="RFID_DB-Web.config Connection String" description="RFID_DB Connection String used in web.config by the application to access the database." defaultValue="Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 172.20.9.32)(PORT = 1521))(ADDRESS = (PROTOCOL = TCP)(HOST = 172.20.9.33)(PORT = 1521))(LOAD_BALANCE = yes)(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = t2prpt)));User Id=wmsuser;Password=wmsuser123;" tags="SqlConnectionString">
+    <parameterEntry kind="XmlFile" scope="C:\\Users\\Administrator\\Desktop\\NEW_RFID\\RFID_WebSite\\RFID_WebSite\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='RFID_DB']/@connectionString" />
+  </parameter>
+  <parameter name="LIS_DB-Web.config Connection String" description="LIS_DB Connection String used in web.config by the application to access the database." defaultValue="Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.56.130.106)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=ods)));User Id=AP_RFID;Password=APRFID2016;" tags="SqlConnectionString">
+    <parameterEntry kind="XmlFile" scope="C:\\Users\\Administrator\\Desktop\\NEW_RFID\\RFID_WebSite\\RFID_WebSite\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='LIS_DB']/@connectionString" />
+  </parameter>
+  <parameter name="DefaultConnection-Web.config Connection String" description="DefaultConnection Connection String used in web.config by the application to access the database." defaultValue="DefaultConnection_ConnectionString" tags="SqlConnectionString">
+    <parameterEntry kind="XmlFile" scope="C:\\Users\\Administrator\\Desktop\\NEW_RFID\\RFID_WebSite\\RFID_WebSite\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='DefaultConnection']/@connectionString" />
+  </parameter>
+</parameters>

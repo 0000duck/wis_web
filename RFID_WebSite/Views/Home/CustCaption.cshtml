@@ -1,0 +1,173 @@
+﻿<script src="~/Scripts/alasql.min.js"></script>
+<script src="~/Scripts/xlsx.core.min.js"></script>
+<style>
+    .paginationclass {
+        margin: 19px 28px;
+    }
+
+        .paginationclass span {
+            margin-left: 15px;
+            display: inline-block;
+        }
+
+    .pagination-controle li {
+        display: inline-block;
+    }
+
+    .pagination-controle button {
+        font-size: 12px;
+        margin-top: -26px;
+        cursor: pointer;
+    }
+
+    .pagination {
+        margin: 5px 12px !important;
+    }
+</style>
+<script>
+    var InOutSite = angular.module('CustCaption', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+
+
+    InOutSite.controller('Data', function ($scope, $http, $filter) {
+        $scope.init = function () {
+
+            $scope.Query();
+        };
+
+        $scope.ActiveModel = [{ name: 'T', desc: '開啟' },
+                            { name: 'F', desc: '關閉' }];
+
+        $scope.Query = function () {
+
+            $http.post("@Url.Action("GetCustCaption", "Home")", {}).success(function (response) {
+
+                $scope.CustCaptionList = response;
+
+
+            }).error(function (response) {
+                //alert(response);
+            });
+
+        };
+
+        $scope.SaveCustCaption = function () {          
+          
+            $http.post('http://10.56.195.180:8080/DISWebService/setcaption', { custCaptionList: JSON.stringify($scope.CustCaptionList) } ).success(function (response) {
+
+                alert(response);
+
+
+            }).error(function (response) {
+                //alert(response);
+            });
+           
+        }
+
+        $scope.init();
+
+
+    });
+
+</script>
+
+<div class="row datepickerdemoBasicUsage" ng-app="CustCaption" ng-controller="Data">
+
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <h3 class="panel-title pull-left"><strong>自訂自幕顯示</strong></h3>
+
+                <button class="btn-xs btn-default pull-right" ng-click="Query()">查詢</button>
+
+
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                @*<div class="row">
+                    <div class="col-md-3">
+                        <div class='form-group '>
+                            <label class='control-label'>廠區</label>
+                            <select class='form-control' ng-model="fabType" ng-init="fabType=TypeModel[0]" ng-options="eachType for eachType in TypeModel">
+                                <option value=""></option>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class='form-group '>
+                            <label class='control-label'>區域</label>
+                            <select class='form-control' ng-model="area" ng-init="area=AreaModel[0]" ng-options="eachArea.desc for eachArea in AreaModel">
+                                <option value=""></option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                </div>*@
+
+                <fieldset>
+                    <legend></legend>
+
+                    <div class="row">
+                        <div class='form-group has-success col-md-1'>
+
+                            <label class='control-label'>區域</label>
+
+
+                        </div>
+                        <div class='form-group has-success col-md-1'>
+
+                            <label class='control-label'>門號</label>
+
+
+                        </div>
+                        <div class='form-group has-success col-md-9'>
+                            <label class='control-label'>字幕內容</label>
+
+                        </div>
+                        <div class='form-group has-success col-md-1'>
+
+                            <label class='control-label'>狀態</label>
+
+
+                        </div>
+                    </div>
+
+                    <div class="row" ng-repeat="eachCustCaption in CustCaptionList">
+                        
+                        
+                        <div class="col-md-1">
+                            <h5>
+                                <span ng-class="eachCustCaption.Area=='Receive'?'label label-primary':'label label-danger'">{{eachCustCaption.Fab}} {{eachCustCaption.Area}}</span>
+                            </h5>
+                        </div>
+                         <div class="col-md-1">
+                            <h5>
+                                <span class="label label-success">Gate{{eachCustCaption.Gate}}</span>
+                            </h5>
+                        </div>
+                        
+                        <div class='form-group has-warning col-md-9'>
+
+                            <input class='form-control' placeholder='請輸入內容' ng-model="eachCustCaption.CustCaptionStr">
+                        </div>
+
+                        <div class='form-group col-md-1' ng-class="eachCustCaption.Active=='T'?'has-success':'has-error'">
+                            <select class='form-control'  style="-webkit-appearance: none" ng-model="Active" ng-init="eachCustCaption.Active=='T'?Active = ActiveModel[0]:Active = ActiveModel[1]" ng-options="eachActive.desc for eachActive in ActiveModel" ng-change="eachCustCaption.Active = Active.name">
+                                @*<option value="">請選擇...</option>*@
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class='form-actions'>
+                        <button class='btn btn-warning' type='submit' ng-click="SaveCustCaption()">儲存</button>
+                    </div>
+
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,179 @@
+﻿<script>
+    var PierApp = angular.module('Pier', []);
+    PierApp.controller('piprctrl', function ($scope, $http, $interval,$timeout) {
+
+        $scope.getGataInfo = function () {
+
+            $http.post("@Url.Action("GateInfo", "Home")", { FAB: "T1", AREA: "Delivery" }).success(function (response) {
+                $scope.GateInfo = response;
+    
+            }).error(function (response) {
+                //alert(response);
+            });
+        }
+        $scope.getGataInfo();
+        $interval(function () { $scope.getGataInfo(); }, 3000);
+        
+    });
+
+
+
+</script>
+<style>
+    .tag {
+        border-color: #FFFFFF #FFFFFF #101110 #FFFFFF;
+        border-style: solid solid solid solid;
+        border-width: 20px;
+        border-width: 0px 11px 20px 10px;
+        height: 0px;
+        width: 53px;
+        padding-bottom: -6px;
+        margin-bottom: -2px;
+        color: white;
+    }
+
+    .id {
+        border: 3px solid black;
+        border-radius: 5px;
+        margin-bottom: 2px;
+        /*text-align: center;*/
+    }
+
+    .list-Css {
+        padding: 2px;
+        border: 5px;
+    }
+</style>
+
+<div class="col-md-10 col-md-offset-1" ng-app="Pier" ng-controller="piprctrl">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+
+            <h3 class="panel-title"><strong><i class="fa fa-Guest"></i>T1_出貨碼頭即時狀態</strong></h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12 ">
+                    <table class="table table-condensed ">
+
+                       <tr  ng-repeat="eachGate in GateInfo" ng-show="($index+1)<=3">
+                            <td>
+                                <img src="~/Images/{{$index+1}}.png" class="img-responsive " alt="Responsive image">
+                            </td>
+                            <td>
+
+                                <img src="~/Images/Guest.PNG" class="img-responsive " alt="Responsive image" ng-show="eachGate.CAR_TYPE=='Guest'">
+                                <img src="~/Images/Truck.PNG" class="img-responsive " alt="Responsive image" ng-show="eachGate.CAR_TYPE=='Truck'">
+                                <img src="~/Images/Container.PNG" class="img-responsive " alt="Responsive image" ng-show="eachGate.CAR_TYPE=='Container'">
+                            </td>
+                            <td>
+
+                                <ul class="list-group">
+
+                                    <li class="list-group-item" ng-show="eachGate.CAR_TYPE!='Container'">車牌
+                                        <span class="label label-primary">{{eachGate.CAR_ID}}</span>
+
+                                    </li>
+                                    <li class="list-group-item" ng-show="eachGate.CAR_TYPE=='Container'">貨櫃號碼
+                                        <span class="label label-primary">{{eachGate.CONTAINER_ID}}</span>
+
+                                    </li>
+                                    <li class="list-group-item " ng-show="eachGate.CAR_TYPE!='Container'">廠商
+                                         <span class="label label-success">{{eachGate.VENDOR_NAME}}</span>
+                                    </li>
+                                    <li class="list-group-item " ng-show="eachGate.CONTAINER_STATUS !=''">貨櫃狀態
+                                         <span class="label label-danger" ng-show=" eachGate.CONTAINER_STATUS=='NonEmpty'">重櫃</span>
+                                        <span class="label label-warning" ng-show=" eachGate.CONTAINER_STATUS=='Empty'">空櫃</span>
+
+                                    </li>
+
+                                </ul>
+
+                            </td>
+                        </tr>
+                       
+
+                    </table>
+                </div>
+                <!--TEST-->
+                <div>
+
+
+                </div>
+
+            </div>
+
+            <!--
+            <div class="col-md-10 col-md-offset-1 ">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+
+                        <h3 class="panel-title"><strong>T1_收貨碼頭即時狀態</strong></h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>碼頭
+                                    </th>
+                                    <th>貨車
+                                    </th>
+                                    <th>廠商
+                                    </th>
+                                    <th>狀態
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>123456789</td>
+                                    <td>五崧</td>
+                                    <td>重櫃</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>987654321</td>
+                                    <td>五崧</td>
+                                    <td>空櫃</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>741852963</td>
+                                    <td>五崧</td>
+                                    <td>空櫃</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>741852963</td>
+                                    <td>五崧</td>
+                                    <td>空櫃</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>741852963</td>
+                                    <td>五崧</td>
+                                    <td>空櫃</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>741852963</td>
+                                    <td>五崧</td>
+                                    <td>空櫃</td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+
+                    </div>
+                </div>
+            </div>
+     -- -->
+        </div>
+    </div>
+</div>
+
+

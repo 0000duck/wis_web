@@ -1,0 +1,150 @@
+﻿@{
+    ViewBag.Title = "Login";
+}
+
+
+<html>
+<head>
+
+    <!--------------------
+    LOGIN FORM
+    by: Amit Jakhu
+    www.amitjakhu.com
+    --------------------->
+    <!--META-->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Login Form</title>
+
+    <!--STYLESHEETS-->
+    @Styles.Render("~/Content/login/login.css")
+   
+    
+    <!--Slider-in icons-->
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            // alert("Login account:ADMIN  password:1234");
+            //$('div#wrapper').stop().animate({ top: '50%' }, 500);
+            
+
+            $(".username").focus(function () {
+                $(".user-icon").css("left", "-48px");
+            });
+            $(".username").blur(function () {
+                $(".user-icon").css("left", "0px");
+             
+            });
+
+            $(".password").focus(function () {
+                $(".pass-icon").css("left", "-48px");
+            });
+            $(".password").blur(function () {
+                $(".pass-icon").css("left", "0px");
+            });
+
+
+            $(".password").keypress(function (e) {
+                code = (e.keyCode ? e.keyCode : e.which);
+                if (code == 13) {
+                    verify_usr();
+                }
+            });
+
+            $("#submit").click(function () {
+                verify_usr();
+            });
+
+
+        });
+        function verify_usr() {
+            
+            $("#login_status").text('正在驗證帳號...');
+            var user = $("#user").val();
+            var pwd = $("#pwd").val();
+            var userInfo = { 'userId': user, 'pwd': pwd }
+            $.ajax({
+                url: '@Url.Action("Verify", "Account")',
+                    type: 'POST',
+                    data: JSON.stringify(userInfo),
+                    datatype: "Json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (response) {
+                        if (response == 'OK') {
+
+                            $("#login_status").text('驗證通過!');
+                            
+                            //$('div#wrapper').stop().animate({ top: -300 }, 500, function () { Redirect('@Url.Action("Index","Home")'); });
+                            Redirect('@Url.Action("Index","Home")');
+                            
+                        } else {
+                            $("#login_status").text(response);
+                        }
+                    },
+                    error: function (req, status, error) {
+                        $("#login_status").text('伺服器錯誤');
+
+                    }
+                });
+        }
+
+        function Redirect(url) {
+            var ua = navigator.userAgent.toLowerCase(),
+                isIE = ua.indexOf('msie') !== -1,
+                version = parseInt(ua.substr(4, 2), 10);
+
+            // IE8 and lower
+            if (isIE && version < 9) {
+                var link = document.createElement('a');
+                link.href = url;
+                document.body.appendChild(link);
+                link.click();
+            }
+
+                // All other browsers
+            else { window.location.replace(url); }
+        }
+        
+    </script>
+
+</head>
+<body>
+
+    <!--WRAPPER-->
+    <div id="wrapper">
+
+        <!--SLIDE-IN ICONS-->
+        <div class="user-icon"></div>
+        <div class="pass-icon"></div>
+        <!--END SLIDE-IN ICONS-->
+        <!--LOGIN FORM-->
+        <form name="login-form" class="login-form" action="" method="post">
+
+            <!--HEADER-->
+            <div class="header">
+                <!--TITLE--><h1><strong>廠區車輛管控系統</strong></h1><!--END TITLE-->
+                <!--DESCRIPTION--><span>請輸入帳號密碼登入</span><!--END DESCRIPTION-->
+            </div>
+            <!--END HEADER-->
+            <!--CONTENT-->
+            <div class="content">
+                <!--USERNAME--><input id="user" name="username" type="text" class="input username" value="Username" onfocus="this.value=''" /><!--END USERNAME-->
+                <!--PASSWORD--><input id="pwd" name="password" type="password" class="input password" value="Password" onfocus="this.value=''" /><!--END PASSWORD-->
+            </div>
+            <!--END CONTENT-->
+            <!--FOOTER-->
+            <div class="footer">
+                <span id="login_status">請輸入帳號密碼登入</span>
+                <!--LOGIN BUTTON--><input id="submit" type="button" value="Login"  class="button" /><!--END LOGIN BUTTON-->
+
+            </div>
+            <!--END FOOTER-->
+
+        </form>
+        <!--END LOGIN FORM-->
+
+    </div>
+    <!--END WRAPPER-->
+    <!--GRADIENT--><div class="gradient"></div><!--END GRADIENT-->
+
+</body>
+</html>

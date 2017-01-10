@@ -1,0 +1,221 @@
+﻿<script src="~/Scripts/alasql.min.js"></script>
+<script src="~/Scripts/xlsx.core.min.js"></script>
+<style>
+    .paginationclass {
+        margin: 19px 28px;
+    }
+
+        .paginationclass span {
+            margin-left: 15px;
+            display: inline-block;
+        }
+
+    .pagination-controle li {
+        display: inline-block;
+    }
+
+    .pagination-controle button {
+        font-size: 12px;
+        margin-top: -26px;
+        cursor: pointer;
+    }
+
+    .pagination {
+        margin: 5px 12px !important;
+    }
+
+   
+</style>
+<script>
+    var InOutSite = angular.module('History', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+    angular.module('History').filter('pagination', function () {
+        return function (input, start) {
+            start = +start;
+            return input.slice(start);
+        };
+    });
+
+    InOutSite.controller('Data', function ($scope, $http, $filter) {
+        $scope.init = function () {
+            $scope.curPage = 0;
+            $scope.pageSize = 15;
+            $scope.hisResult = [];
+            $scope.nowTime = new Date();
+            $scope.myDate = new Date(
+                $scope.nowTime.getFullYear(),
+                $scope.nowTime.getMonth(),
+                $scope.nowTime.getDate() + 1);
+
+            $scope.minDate = new Date(
+                $scope.myDate.getFullYear(),
+                $scope.myDate.getMonth(),
+                $scope.myDate.getDate() - 7);
+            $scope.Query();
+        };
+
+        $scope.TypeModel = ['T1',
+                             'T2'];
+        $scope.GetContainerList = function (val) {
+            return $http.get("@Url.Action("GetContainerList", "Home")").success(function (response) {
+
+                return response;
+
+            });
+        };
+        $scope.Query = function () {
+
+            var queryStartTime = $filter('date')($scope.minDate, 'yyyy-MM-dd HH:mm');
+            var queryEndTime = $filter('date')($scope.myDate, 'yyyy-MM-dd HH:mm');
+
+
+
+
+
+            $http.post("@Url.Action("GetContainerHistory", "Home")", { containerID: $scope.containerID, carID: $scope.carID, fab: $scope.fabType, start: queryStartTime, end: queryEndTime }).success(function (response) {
+                $scope.hisResult = response;
+                $scope.curPage = 0;
+            }).error(function (response) {
+                //alert(response);
+            });
+        };
+
+        $scope.Export = function () {
+
+            alasql('SELECT * INTO XLS("export.xls",{headers:true}) FROM ?', [$scope.hisResult]);
+        };
+        $scope.init();
+
+        $scope.numberOfPages = function () {
+            return Math.ceil($scope.hisResult.length / $scope.pageSize);
+        };
+
+        
+
+
+    });
+
+</script>
+
+<div class="row datepickerdemoBasicUsage" ng-app="History" ng-controller="Data">
+
+  
+    <div class="col-md-10 col-md-offset-1">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <h3 class="panel-title pull-left"><strong>歷史資料</strong></h3>
+                <button class="btn-xs btn-default pull-right" ng-click="Query()">查詢</button>
+                <button class="btn-xs btn-default pull-right" ng-show="hisResult" ng-click="Export()">匯出</button>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class='form-group '>
+                            <label class='control-label'>貨櫃號碼{{containerList}}</label>
+                            @*<input id="cnid" class='form-control' ng-model="containerID">*@
+                            <input type="text" ng-model="containerID" uib-typeahead="id for id in GetContainerList($viewValue)" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class='form-group '>
+                            <label class='control-label'>車牌號碼</label>
+                            <input class='form-control' ng-model="carID">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class='form-group '>
+                            <label class='control-label'>廠區</label>
+                            <select class='form-control' ng-model="fabType" ng-options="eachType for eachType in TypeModel">
+                                <option value=""></option>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class='form-group '>
+                            <label class='control-label'>開始時間</label>
+            
+                            <md-datepicker  ng-model="minDate" md-placeholder="Enter date"></md-datepicker>
+                        
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class='form-group'>
+                            <label class='control-label'>結束時間</label>
+                            <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker>
+                        </div>
+                    </div>
+
+                </div>
+
+                <fieldset>
+                    <legend></legend>
+
+                    <table class='table table-striped table-bordered'>
+                        <thead>
+                            <tr>
+
+                                <th>貨櫃號碼</th>
+                                <th>廠</th>
+                                <th>區域</th>
+                                <th>門號</th>
+                                <th>車牌</th>
+                                <th>種類</th>
+                                <th>狀態</th>
+                                <th>廠商</th>
+                                <th>車種</th>
+                                <th>司機</th>
+                                <th>電話</th>
+                                <th>時間</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: small">
+                            <tr ng-repeat="eachRow in hisResult | pagination: curPage * pageSize | limitTo: pageSize">
+
+                                <td>{{eachRow.container_id}}</td>
+                                <td>{{eachRow.fab}}</td>
+                                <td>{{eachRow.area.replace("SB", "外圍").replace("Center", "中櫃場").replace("WH", "WH+OB").replace("Receive", "收貨碼頭").replace("Delivery", "出貨碼頭").replace("Leave", "離廠").replace("Enter", "進廠").replace("Parking", "訪客區")}}</td>
+                                <td>{{eachRow.gate}}</td>
+                                <td>{{eachRow.car_id}}</td>
+                                <td>{{eachRow.container_type}}</td>
+                                <td>{{eachRow.container_status.replace("NonEmpty", "重櫃").replace("Empty", "空櫃")}}</td>
+                                <td>{{eachRow.vendor_name}}</td>
+                                <td>{{eachRow.car_type.replace("Container", "貨櫃").replace("Guest", "訪客").replace("Truck", "貨車")}}</td>
+                                <td>{{eachRow.driverName}}</td>
+                                <td>{{eachRow.driverPhone}}</td>
+                                <td>{{eachRow.timestamp}}</td>
+
+
+
+                            </tr>
+
+                        </tbody>
+                    </table>
+                    <div class="pagination pagination-centered" ng-show="hisResult.length">
+                        <ul class="pagination-controle pagination">
+                            <li>
+                                <button type="button" class="btn btn-primary" ng-disabled="curPage == 0"
+                                    ng-click="curPage=curPage-1">
+                                    &lt; PREV</button>
+                            </li>
+                            <li>
+                                <span>Page {{curPage + 1}} of {{ numberOfPages() }}</span>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-primary"
+                                    ng-disabled="curPage >= hisResult.length/pageSize - 1"
+                                    ng-click="curPage = curPage+1">
+                                    NEXT &gt;</button>
+                            </li>
+
+                        </ul>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+

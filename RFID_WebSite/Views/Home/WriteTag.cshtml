@@ -1,0 +1,615 @@
+﻿<script>
+    var InOutSite = angular.module('InOutSite', []);
+    InOutSite.controller('InSite', function ($scope, $http) {
+
+        $scope.init = function () {
+            //$scope.containerid = null;
+
+            $http.post("@Url.Action("GetDriverNameList", "Home")", {}).success(function (response) {
+
+                $("#driverName").autocomplete({
+                    source: response,
+                    select: function (event, ui) {
+                        $scope.getDriverInfo(ui.item.value);
+                        $scope.driverName = ui.item.value;
+                    }
+                });
+            }).error(function (response) {
+                alert(response);
+            });
+
+            $http.post("@Url.Action("GetCarIDList", "Home")", {}).success(function (response) {
+
+                $("#carID").autocomplete({
+                    source: response,
+                    select: function (event, ui) {
+                        $scope.getDriverInfoByCarID(ui.item.value);
+                        $scope.carid = ui.item.value;
+                    }
+                });
+            }).error(function (response) {
+                alert(response);
+            });
+
+            
+
+        };
+
+        $scope.init();
+
+        $scope.getDriverInfoByCarID = function (car_id) {
+            $http.post("@Url.Action("GetDriverInfoByCarID", "Home")", { carID: car_id }).success(function (response) {
+                $scope.VendorName = response.vendorName;
+                $scope.DriverPhone = response.driverPhone;
+                $scope.DriverName = response.driverName;
+            }).error(function (response) {
+                alert(response);
+            });
+        };
+
+        $scope.getDriverInfo = function (driverName) {
+            $http.post("@Url.Action("GetDriverInfo", "Home")", { name: driverName }).success(function (response) {
+                $scope.VendorName = response.vendorName;
+                $scope.DriverPhone = response.driverPhone;
+                if ($scope.carid == '') {
+                    $scope.carid = response.carID;
+                }
+            }).error(function (response) {
+                alert(response);
+            });
+        };
+
+        $scope.submit = function () {
+
+            //if ($scope.carid == '' && $scope.containerid == '') {
+
+            //    alert('貨櫃或車牌號碼不能為空');
+
+            //} else if ($scope.ContainerType == '') {
+            //    if ($scope.containerid != '') {
+            //        alert('請選擇貨櫃種類');
+            //    }
+            //} else if ($scope.VendorName == '') {
+            //    alert('廠商名稱不能為空');
+            //} else if ($scope.Reason.type == '') {
+            //    alert('目的不能為空');
+            //} else if ($scope.Fab == '') {
+            //    alert('請選擇廠區');
+            //} else if ($scope.Location.name == '') {
+            //    alert('請選擇地點');
+            //} else if ($scope.CarType.type == '') {
+            //    alert('請選擇車輛種類');
+            //} else if ($scope.DriverName == '') {
+            //    alert('司機名稱不能為空');
+            //} else if ($scope.DriverPhone == '') {
+            //    alert('司機電話號碼不能為空');
+            //} else {
+                
+            $scope.writeTag();
+            
+           // }
+
+        };
+
+        $scope.getNow = function () {
+            var today = new Date();
+            var currentDateTime =
+            today.getFullYear() +
+            (today.getMonth() + 1) +
+            today.getDate() +
+            today.getHours() + today.getMinutes() + today.getSeconds();
+            return currentDateTime;
+        }
+
+        $scope.writeTag = function () {
+            var id = '';
+            var jsonStr = {
+                action: 'WRITE',
+                param: '',
+                status: '',
+                content: '',
+                tid: $scope.getNow(),
+            };
+
+            switch ($scope.CarType.type) {
+                case 'Container':
+                    id = 'C' + $scope.containerid;
+                    break;
+                case 'Truck':
+                    id = 'T' + $scope.containerid;
+                    break;
+                case 'BigTruck':
+                    id = 'B' + $scope.containerid;
+                    break;
+            }
+
+            var i;
+            var asciiCode = '';
+            for (i = 0; i < id.length; i++) {
+               
+                asciiCode = asciiCode + id.charCodeAt(i).toString(16);
+            }
+            jsonStr.param = asciiCode;
+            $scope.tid = jsonStr.tid;
+            $scope.chat.server.send($scope.Fab + 'Reader', JSON.stringify(jsonStr));
+        };
+
+        $scope.clear = function () {
+            $scope.containerid = '';
+            $scope.carid = '';
+            $scope.ContainerType = '';
+            $scope.VendorName = '';
+            $scope.Reason = $scope.ReasonModel[0];
+            //$scope.Fab = '';
+            $scope.Location = $scope.LocationModel[0];
+            $scope.containerQueryResult = '';
+            $scope.CarType = $scope.CarModel[0];
+            $scope.DriverName = '';
+            $scope.DriverPhone = '';
+        };
+
+        $scope.addInfo = function () {
+            var jsonStr = {
+                ID: $scope.containerid,
+                carID: $scope.carid.replace('-',''),
+                type: $scope.ContainerType,
+                vendor: $scope.VendorName,
+                driverName: $scope.DriverName,
+                driverPhone: $scope.DriverPhone,
+                reason: $scope.Reason.type,
+                fab: $scope.Fab,
+                area: $scope.Location.name,
+                gate: '0',
+                status: $scope.containerQueryResult,
+                carType: $scope.CarType.type
+            };
+            $http.post("@Url.Action("AddContainerInfo", "Home")", { jsonObj: JSON.stringify(jsonStr) }).success(function (response) {
+                if (response.status == 'NG') {
+                    alert(response.detail);
+
+                } else {
+
+                    alert(JSON.stringify(jsonStr).replace('{', '').replace('}', '').replace(/\,/g, '\n'));
+                    alert('寫入成功');
+
+                }
+            }).error(function (response) {
+                alert(response);
+            });
+
+        };
+
+        $scope.addHistory = function () {
+            var jsonStr = {
+                container_id: $scope.containerid,
+                car_id: $scope.carid.replace('-',''),
+                container_type: $scope.ContainerType,
+                driverName: $scope.DriverName,
+                driverPhone: $scope.DriverPhone,
+                vendor_name: $scope.VendorName,
+                reason: $scope.Reason.type,
+                fab: $scope.Fab,
+                area: $scope.Location.name,
+                gate: '0',
+                container_status: $scope.containerQueryResult,
+                car_type: $scope.CarType.type
+            };
+
+            $http.post("@Url.Action("AddContainerHistory", "Home")", { jsonObj: JSON.stringify(jsonStr) }).success(function (response) {
+                if (response.status == 'NG') {
+                    alert(response.detail);
+
+                } else {
+
+                    //alert(response.status);
+
+                }
+            }).error(function (response) {
+                alert(response);
+            });
+        };
+
+        $scope.TypeModel = ['',
+                            '40HQ',
+                            '20RF'];
+        $scope.FabModel = ['',
+                            'T1',
+                            'T2'];
+        $scope.ReasonModel = [{ type: '', desc: '請選擇...' },
+                              { type: 'Delivery', desc: '送貨' },
+                              { type: 'Construction', desc: '施工' }];
+        $scope.LocationModel = [{ name: '', desc: '請選擇...' },
+                                { name: 'WH', desc: 'WH+OB' },
+                                { name: 'SB', desc: '外圍' },
+                                { name: 'Center', desc: '中櫃廠' }];
+        $scope.ContainerCarModel = [{ type: '', desc: '請選擇...' },
+                           { type: 'Container', desc: '貨櫃' },
+                           { type: 'Truck', desc: '貨車' },
+                           { type: 'BigTruck', desc: '大貨車' }];
+
+        $scope.NoContainerCarModel = [{ type: '', desc: '請選擇...' },
+                           { type: 'Truck', desc: '貨車' },
+                           { type: 'BigTruck', desc: '大貨車' }];
+
+        $scope.$watch('containerid_focus', function (newValue, oldValue) {
+            if (newValue == false) {
+                var ss = $scope.containerid;
+                $scope.containerQueryResult = "";
+                $scope.containerid = $scope.containerid;
+                if ($scope.containerid != "") {
+                    if (checkContainerID($scope.containerid)) {
+
+                        $http.post("@Url.Action("GetContainer", "Home")", { id: $scope.containerid }).success(function (response) {
+                            $scope.containerQueryResult = response.status;
+
+                            if (response.type == '40HQ') {
+                                $scope.ContainerType = $scope.TypeModel[1];
+
+                            } else if (response.type == '20RF') {
+                                $scope.ContainerType = $scope.TypeModel[2];
+
+                            }
+
+                            $scope.CarType = $scope.CarModel[1];
+                            $scope.Location = $scope.LocationModel[3];
+
+                        }).error(function (response) {
+                            alert(response);
+                        });
+
+
+
+                    } else {
+                        $scope.CarType = null;
+                        $scope.ContainerType = null;
+                        $scope.containerQueryResult = 'NG';
+                    }
+                }
+                else {
+                    $scope.CarType = null;
+                    $scope.ContainerType = null;
+                    $scope.Location = null;
+                }
+            }
+        }, true);
+
+        $scope.$watch('containerid', function (newValue, oldValue) {
+            if ($scope.containerid) {
+                $scope.CarModel = $scope.ContainerCarModel;
+            }
+        }, true);
+
+        $scope.$watch('carid', function (newValue, oldValue) {
+            if (!$scope.containerid && $scope.carid) {
+                $scope.CarModel = $scope.NoContainerCarModel;
+            }
+        }, true);
+
+        $scope.chat = $.connection.signalRHub;
+        // Create a function that the hub can call back to display messages.
+        $scope.chat.client.addNewMessageToPage = function (name, message) {
+            if (name.indexOf('Reader') != -1) {
+                if ($scope.tid == message.tid) {
+                    if (message.status == 'OK') {
+                        alert('寫入成功');
+                        $scope.addInfo();
+                        $scope.addHistory();
+                        $scope.clear();
+                    } else if (message.status == 'NG') {
+                        alert('寫入失敗');
+                    }
+                }
+            }
+        };
+
+        $.connection.hub.start().done(function () {
+            //chat.server.send('book1', '1155');
+            
+
+        });
+        //Reconnect signalR after 5 second, when signalR is disconnected.
+        $.connection.hub.disconnected(function () {
+            setTimeout(function () {
+                $.connection.hub.start();
+            }, 5000);
+        });
+
+    })
+
+    InOutSite.controller('OutSite', function ($scope, $http) {
+
+        $scope.$watch('carid_focus', function (newValue, oldValue) {
+            if (newValue == false) {
+                $scope.getCarInfo();
+            }
+            else {
+                $scope.carid = null;
+                $scope.containerid = null;
+                $scope.ContainerType = null;
+                $scope.DriverName = null;
+                $scope.DriverPhone = null;
+                $scope.VendorName = null;
+                $scope.Reason = null;
+            }
+
+        });
+        $scope.getCarInfo = function () {
+            $http.post("@Url.Action("GetContainerInfo", "Home")", { containerID: $scope.containerid, carID: $scope.carid }).success(function (response) {
+
+                $scope.containerid = response.ID;
+                $scope.ContainerType = response.type;
+                $scope.DriverName = response.driverName;
+                $scope.DriverPhone = response.driverPhone;
+                $scope.VendorName = response.vendor;
+                $scope.Reason = response.reason;
+
+            }).error(function (response) {
+                alert(response);
+            });
+        };
+
+    });
+    function checkContainerID(id) {
+
+        var code1 = getCode(id.substring(0, 1));
+        var code2 = getCode(id.substring(1, 2));
+        var code3 = getCode(id.substring(2, 3));
+        var code4 = getCode(id.substring(3, 4));
+        var code5 = parseInt(id.substring(4, 5));
+        var code6 = parseInt(id.substring(5, 6));
+        var code7 = parseInt(id.substring(6, 7));
+        var code8 = parseInt(id.substring(7, 8));
+        var code9 = parseInt(id.substring(8, 9));
+        var code10 = parseInt(id.substring(9, 10));
+        var code11 = parseInt(id.substring(10, 11));
+
+        var checkCode = code1 * Math.pow(2, 0);
+        checkCode = checkCode + code2 * Math.pow(2, 1);
+        checkCode = checkCode + code3 * Math.pow(2, 2);
+        checkCode = checkCode + code4 * Math.pow(2, 3);
+        checkCode = checkCode + code5 * Math.pow(2, 4);
+        checkCode = checkCode + code6 * Math.pow(2, 5);
+        checkCode = checkCode + code7 * Math.pow(2, 6);
+        checkCode = checkCode + code8 * Math.pow(2, 7);
+        checkCode = checkCode + code9 * Math.pow(2, 8);
+        checkCode = checkCode + code10 * Math.pow(2, 9);
+
+        checkCode = checkCode / 11;
+        checkCode = checkCode - Math.floor(checkCode);
+        checkCode = checkCode * 11;
+
+        checkCode = Math.round(checkCode);
+        if (code11 == checkCode) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    function getCode(input) {
+        switch (input) {
+            case 'A':
+                return 10;
+                break;
+            case 'B':
+                return 12;
+                break;
+            case 'C':
+                return 13;
+                break;
+            case 'D':
+                return 14;
+                break;
+            case 'E':
+                return 15;
+                break;
+            case 'F':
+                return 16;
+                break;
+            case 'G':
+                return 17;
+                break;
+            case 'H':
+                return 18;
+                break;
+            case 'I':
+                return 19;
+                break;
+            case 'J':
+                return 20;
+                break;
+            case 'K':
+                return 21;
+                break;
+            case 'L':
+                return 23;
+                break;
+            case 'M':
+                return 24;
+                break;
+            case 'N':
+                return 25;
+                break;
+            case 'O':
+                return 26;
+                break;
+            case 'P':
+                return 27;
+                break;
+            case 'Q':
+                return 28;
+                break;
+            case 'R':
+                return 29;
+                break;
+            case 'S':
+                return 30;
+                break;
+            case 'T':
+                return 31;
+                break;
+            case 'U':
+                return 32;
+                break;
+            case 'V':
+                return 34;
+                break;
+            case 'W':
+                return 35;
+                break;
+            case 'X':
+                return 36;
+                break;
+            case 'Y':
+                return 37;
+                break;
+            case 'Z':
+                return 38;
+                break;
+        }
+    }
+
+</script>
+
+<div class="row" ng-app="InOutSite">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <h3 class="panel-title"><strong>車輛進出登錄系統</strong></h3>
+            </div>
+            <div class="panel-body">
+
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#in">進場</a></li>
+                    <li><a data-toggle="tab" href="#out">離廠</a></li>
+
+                </ul>
+
+                <div class="tab-content">
+                    <div id="in" class="tab-pane fade in active" ng-controller="InSite">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group" ng-class="{true:'has-error',false:'has-success'}[!containerid && !carid]">
+                                        <label>貨櫃號碼</label>
+                                        <input maxlength="11" onkeyup="value=value.toUpperCase();value=value.replace(/[^-_A-Z0-9]/g,'')" type="text" class="form-control" ng-focus="containerid_focus=true" ng-blur="containerid_focus=false" ng-model="containerid" ng-init="containerid=''" @*ng-disabled="carid"*@ placeholder="請輸入貨櫃號碼">
+                                        <p class='help-block' ng-show="!containerid && !carid">未輸入貨櫃號碼.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group" ng-class="{true:'has-error',false:'has-success'}[!carid]">
+                                        <label>(貨)車牌號碼</label>
+                                        <input id="carID" maxlength="7" onkeyup="value=value.toUpperCase();value=value.replace(/[^-_A-Z0-9]/g,'')" type="text" class="form-control" ng-model="carid" ng-init="carid=''" @*ng-disabled="containerid"*@ placeholder="請輸入車牌號碼">
+                                        <p class='help-block' ng-show="!carid">未輸入車牌號碼.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            @* <div class="alert alert-success" ng-show="!containerid_focus && containerQueryResult == 'Empty'" role="alert">此貨櫃為空櫃</div>
+                            <div class="alert alert-success" ng-show="!containerid_focus && containerQueryResult == 'NonEmpty'" role="alert">此貨櫃為重櫃</div>*@
+                            <div class="alert alert-danger" ng-show="!containerid_focus && containerQueryResult == 'NG'" role="alert">貨櫃號碼錯誤</div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="sel1">車輛種類</label>
+                                        <select class="form-control" ng-model="CarType" ng-disabled="containerid" ng-init="CarType=CarModel[0]" ng-options="each.desc for each in CarModel">
+                                         
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="sel1">貨櫃種類</label>
+                                        <select class="form-control" ng-model="ContainerType" ng-disabled="carid && !containerid" ng-init="ContainerType=TypeModel[0]" ng-options="eachType for eachType in TypeModel">
+                                          
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>司機姓名</label>
+                                        <input id="driverName" type="text" class="form-control" ng-model="DriverName" ng-init="DriverName=''" placeholder="請輸入司機姓名">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>司機電話</label>
+                                        <input onkeyup="value=value.replace(/[^-_0-9]/g,'')" type="text" class="form-control" ng-model="DriverPhone" ng-init="DriverPhone=''" placeholder="請輸入司機電話">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>廠商名稱</label>
+                                        <input type="text" class="form-control" ng-model="VendorName" ng-init="VendorName=''" placeholder="請輸入廠商名稱">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="sel1">目的</label>
+                                        <select class="form-control" ng-model="Reason" ng-init="Reason=ReasonModel[0]" ng-options="each.desc for each in ReasonModel">
+                                           
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-show="false">
+                                <label for="sel1">廠區</label>
+                                <select class="form-control" ng-model="Fab" ng-init="Fab=FabModel[2]" ng-options="each for each in FabModel">
+                                  
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sel1">地點</label>
+                                <select class="form-control" ng-model="Location" ng-disabled="containerid" ng-init="Location=LocationModel[0]" ng-options="each.desc for each in LocationModel">
+                                 
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary" ng-init="RFID_Connected = false" ng-click="submit()" @*ng-show="RFID_Connected"*@>寫入標籤</button>
+                            <div class="alert alert-danger" ng-show="!RFID_Connected" role="alert">讀寫機連接中斷，請檢查程式是否開啟</div>
+                        </form>
+                    </div>
+                    <div id="out" class="tab-pane fade" ng-controller="OutSite">
+                        <div class="form-group">
+                            <label>(貨)車牌號碼</label>
+                            <input type="text" maxlength="7" onkeyup="value=value.toUpperCase();value=value.replace(/[^-_A-Z0-9]/g,'')" class="form-control" ng-focus="carid_focus=true" ng-blur="carid_focus=false" ng-model="carid">
+                            <button type="submit" class="btn btn-primary">讀取標籤</button>
+                        </div>
+                        <div class="form-group">
+                            <label>貨櫃號碼</label>
+                            <input type="text" class="form-control" ng-model="containerid" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>貨櫃種類</label>
+                            <input type="text" class="form-control" ng-model="ContainerType" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>司機姓名</label>
+                            <input type="text" class="form-control" ng-model="DriverName" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>司機電話</label>
+                            <input type="text" class="form-control" ng-model="DriverPhone" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>廠商名稱</label>
+                            <input type="text" class="form-control" ng-model="VendorName" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>目的</label>
+                            <input type="text" class="form-control" ng-model="Reason" disabled>
+                        </div>
+                        <button type="submit" class="btn btn-danger" ng-click="submit()">離廠</button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

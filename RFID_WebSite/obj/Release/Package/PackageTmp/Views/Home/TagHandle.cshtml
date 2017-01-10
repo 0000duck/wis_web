@@ -1,0 +1,171 @@
+﻿<script>
+    var InOutSite = angular.module('TagHandle', []);
+    InOutSite.controller('Tag', function ($scope, $http) {
+        $scope.TagTypeModel = [{ type: '', desc: '請選擇...' },
+                              { type: 'P', desc: '棧板' },
+                              { type: 'C', desc: '貨櫃' },
+                              { type: 'F', desc: '堆高機' },
+                              { type: 'T', desc: '貨車' },
+                              { type: 'G', desc: '訪客' },
+                              { type: 'M', desc: '櫃位標記' },
+                              { type: 'X', desc: '朗基努斯之槍' }];
+
+        $scope.TagWriterModel = [{ name: '', desc: '請選擇...' },
+                              { name: 'T1SecurityWriter', desc: 'T1警衛室' },
+                              { name: 'T2SecurityWriter', desc: 'T2警衛室' },
+                              { name: 'T2ReceiveWriter', desc: 'T2收貨庫房' },
+                              { name: 'T2CIMWriter', desc: 'T2CIM' }];
+        $scope.tid = '';
+        $scope.submit = function () {
+            var jsonStr = {
+                action: 'WRITE',
+                param: '',
+                status: '',
+                content: '',
+                tid: $scope.TagWriter.name + $scope.getNow()
+            };
+            var id = $scope.TagType.type + $scope.TagID;
+            var i;
+            var asciiCode = '';
+            for (i = 0; i < id.length; i++) {
+
+                asciiCode = asciiCode + id.charCodeAt(i).toString(16).toUpperCase();
+            }
+            for (i = 0; i < 12 - id.length; i++) {
+                asciiCode = asciiCode + "20";
+            }
+            jsonStr.param = asciiCode;
+            $scope.tid = jsonStr.tid;
+            $scope.chat.server.send($scope.TagWriter.name, JSON.stringify(jsonStr));
+            $scope.disableButton = true;
+            $scope.writeBtnText = '寫入中...';
+            setTimeout(function () {
+                if ($scope.tid != '') {
+                    alert("沒有偵測到Tag，請檢查程式是否開啟，或Tag是否沒有放在正確位置。");
+                    $scope.disableButton = false;
+                    $scope.writeBtnText = '寫入';
+                    $scope.$apply();
+                }
+            }, 20000);
+        };
+
+        $scope.read = function () {
+            var jsonStr = {
+                action: 'READ',
+                param: '',
+                status: '',
+                content: '',
+                tid: $scope.TagWriter.name + $scope.getNow()
+            };
+            $scope.disableButton = true;
+            $scope.tid = jsonStr.tid;
+            $scope.chat.server.send($scope.TagWriter.name, JSON.stringify(jsonStr));
+            $scope.disableButton = true;
+            $scope.readBtnText = '讀取中...';
+            setTimeout(function () {
+                if ($scope.tid != '') {
+                    alert("沒有偵測到Tag，請檢查程式是否開啟，或Tag是否沒有放在正確位置。");
+                    $scope.disableButton = false;
+                    $scope.readBtnText = '讀取';
+                    $scope.$apply();
+                }
+            }, 20000);
+        };
+
+        $scope.chat = $.connection.signalRHub;
+        // Create a function that the hub can call back to display messages.
+        $scope.chat.client.addNewMessageToPage = function (name, message) {
+            var messageObj = JSON.parse(message);
+            if (name == $scope.TagWriter.name) {
+                if (messageObj.tid != undefined) {
+                    if ($scope.tid == messageObj.tid && messageObj.status != '') {
+                        
+                        if (messageObj.status == 'OK') {
+                            if (messageObj.action == 'READ') {
+                                $scope.TagID = '';
+                                for (var i = 2; i < messageObj.content.length; i = i + 2) {
+                                    var hex = messageObj.content.substring(i, i + 2);
+                                    var decimal = parseInt(hex, 16);
+                                    $scope.TagID += String.fromCharCode(decimal);
+                                }
+                                $scope.$apply();
+                                //$scope.TagID = messageObj.content;
+                            } else if (messageObj.action == 'WRITE') {
+                                alert('成功');
+                            }
+                        } else if (messageObj.status == 'NG') {
+                            alert(messageObj.content);
+                        }
+                        $scope.disableButton = false;
+                        $scope.writeBtnText = '寫入';
+                        $scope.readBtnText = '讀取';
+                        $scope.$apply();
+                        $scope.tid = '';
+                    }
+                }
+            }
+        };
+
+        $.connection.hub.start().done(function () {
+            //chat.server.send('book1', '1155');
+
+
+        });
+        //Reconnect signalR after 5 second, when signalR is disconnected.
+        $.connection.hub.disconnected(function () {
+            setTimeout(function () {
+                $.connection.hub.start();
+            }, 5000);
+        });
+
+        $scope.getNow = function () {
+            var today = new Date();
+            var currentDateTime = '' +
+            today.getFullYear() +
+            (today.getMonth() + 1) +
+            today.getDate() +
+            today.getHours() + today.getMinutes() + today.getSeconds();
+            return currentDateTime;
+        }
+    });
+</script>
+
+<div ng-app="TagHandle">
+    <div ng-controller="Tag">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+
+                    <h3 class="panel-title"><strong>Tag處理</strong></h3>
+                </div>
+                <div class="panel-body detail-form">
+
+                    <form>
+                        <div class="col-md-10 col-md-offset-1">
+                           <div class="form-group">
+                               
+                                    <label>Tag種類</label>
+                                    <select class="form-control" ng-model="TagType" ng-init="TagType=TagTypeModel[0]" ng-options="each.desc for each in TagTypeModel">
+                                    </select>
+
+                            </div>
+                           <div class="form-group">
+                                <label>Tag讀寫機</label>
+                                    <select class="form-control" ng-model="TagWriter" ng-init="TagWriter=TagWriterModel[0]" ng-options="each.desc for each in TagWriterModel">
+                                    </select>
+                                </div>
+                            <div class="form-group">
+                                <label>Tag ID</label>
+                                    <input type="text" class="form-control" ng-model="TagID" ng-init="TagID=''" placeholder="請輸入Tag ID">
+                            </div>
+                  
+                            <button type="submit" class="btn btn-danger" ng-init="disableButton = false;writeBtnText='寫入'" ng-disabled="disableButton" ng-click="submit()">{{writeBtnText}}</button>
+                            <button type="submit" class="btn btn-danger" ng-init="readBtnText='讀取'" ng-disabled="disableButton" ng-click="read()">{{readBtnText}}</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

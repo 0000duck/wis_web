@@ -54,26 +54,33 @@
 
         $scope.TypeModel = ['T1',
                              'T2'];
-        $scope.AreaModel = [{ name: 'Receive', desc: '收貨區' },
-                            { name: 'Delivery', desc: '出貨區' },
-                            { name: 'CentralParking', desc: '中櫃廠' }];
+        $scope.AreaModel = [{ name: 'Receive', desc: '收貨區' ,location:'T1'},
+                            { name: 'Delivery', desc: '出貨區', location: 'T1'},
+                            { name: 'Receive', desc: '收貨區', location: 'T2' },
+                            { name: 'Delivery', desc: '出貨區', location: 'T2' },
+                            { name: 'INCP', desc: '進中櫃廠', location: 'T2' },
+                            { name: 'OUTCP', desc: '出中櫃廠', location: 'T2' },
+                            { name: 'T1DP', desc: 'T1分流點', location: 'T2' },
+                            { name: 'T2DP', desc: 'T2分流點', location: 'T2' },
+                            { name: 'E1', desc: '異常天線1', location: 'T1' },
+                            { name: 'E2', desc: '異常天線2', location: 'T1' },
+                            { name: 'E3', desc: '異常天線3', location: 'T1' }];
         $scope.AntTypeModel = [{ name: '', desc: '請選擇...' },
                         { name: 'CT', desc: '貨櫃' },
-                        { name: 'DN', desc: '棧板' },
-                        { name: 'AB', desc: '異常' },
-                        { name: 'INCP', desc: '進中櫃廠' },
-                        { name: 'OUTCP', desc: '出中櫃廠' },
-                        { name: 'T1DP', desc: 'T1分流點' },
-                        { name: 'T2DP', desc: 'T2分流點' }];
-        $scope.TagTypeModel = [{ name: '', desc: '請選擇...' },
+                        { name: 'DN', desc: '棧板' }
+        ];
+        $scope.TagTypeModel = [{ name: 'O', desc: '非定義' },
                         { name: 'C', desc: '貨櫃' },
                         { name: 'T', desc: '貨車' },
                         { name: 'P', desc: '棧板' },
                         { name: 'F', desc: '堆高機' },
                         { name: 'M', desc: '地上' }];
+        $scope.selectedTagType = ['O'];
         $scope.HoursModel = ['00',
                              '01',
         '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
+
+
         $scope.GetContainerList = function (val) {
             return $http.get("@Url.Action("GetContainerList", "Home")").success(function (response) {
 
@@ -88,31 +95,73 @@
 
             var s = Date.parse(queryStartTime);
             var e = Date.parse(queryEndTime);
+            var tmpArea = $scope.area.name;
+            var tmpAntType = $scope.antType.name;
+            var tmpGateID = $scope.gateID;
 
+            switch ($scope.area.name) {
 
+                case 'T1DP':
+                    tmpGateID = '21';
+                    tmpAntType = 'T1DP';
+                    tmpArea = 'CentralParking';
+                    break;
+                case 'T2DP':
+                    tmpGateID = '22';
+                    tmpAntType = 'T2DP';
+                    tmpArea = 'CentralParking';
+                    break;
+                case 'INCP':
+                    tmpGateID = '23';
+                    tmpAntType = 'INCP';
+                    tmpArea = 'CentralParking';
+                    break;
+                case 'OUTCP':
+                    tmpGateID = '24';
+                    tmpAntType = 'OUTCP';
+                    tmpArea = 'CentralParking';
+                    break;
+                case 'E1':
+                    tmpGateID = '91';
+                    tmpAntType = 'AB';
+                    tmpArea = 'Delivery';
+                    break;
+                case 'E2':
+                    tmpGateID = '92';
+                    tmpAntType = 'AB';
+                    tmpArea = 'Receive';
+                    break;
+                case 'E3':
+                    tmpGateID = '93';
+                    tmpAntType = 'AB';
+                    tmpArea = 'Receive';
+                    break;
+            }
+            
 
-            if ($scope.area == undefined) {
+            if (tmpArea == undefined) {
                 alert('請選擇區域');
-            } else if ($scope.gateID == undefined) {
+            } else if (tmpGateID == undefined) {
                 alert('請選擇號碼');
             } else if ($scope.fabType == undefined) {
                 alert('請選擇廠區');
-            } else if ($scope.antType == undefined) {
+            } else if (tmpAntType == undefined) {
                 alert('請選擇天線種類');
-            } else if ($scope.area.length == 0) {
+            } else if (tmpArea.length == 0) {
                 alert('請選擇區域');
-            } else if ($scope.gateID.length == 0) {
+            } else if (tmpGateID.length == 0) {
                 alert('請選擇號碼');
             } else if ($scope.fabType.length == 0) {
                 alert('請選擇廠區');
-            } else if ($scope.antType.name.length == 0) {
+            } else if (tmpAntType.length == 0) {
                 alert('請選擇天線種類');
             } else if ((e - s) / 1000 / 60 / 60 > 1) {
                 alert('搜尋條件不可超過1小時');
             } else {
+                
 
 
-                $http.post("@Url.Action("GetTagHistory", "Home")", { area: $scope.area.name, gateID: $scope.gateID, fab: $scope.fabType, antType: $scope.antType.name, hideTagType: $scope.hideTagType.name, start: queryStartTime, end: queryEndTime }).success(function (response) {
+                $http.post("@Url.Action("GetTagHistory", "Home")", { area: tmpArea, gateID: tmpGateID, fab: $scope.fabType, antType: tmpAntType, hideTagType: JSON.stringify($scope.selectedTagType), start: queryStartTime, end: queryEndTime }).success(function (response) {
 
                     $scope.hisResult = response;
                     $scope.curPage = 0;
@@ -169,14 +218,14 @@
                     <div class="col-md-1">
                         <div class='form-group '>
                             <label class='control-label'>區域</label>
-                            <select class='form-control' ng-model="area" ng-init="area=AreaModel[0]" ng-options="eachArea.desc for eachArea in AreaModel">
+                            <select class='form-control' ng-model="area" ng-init="area=AreaModel[0]" ng-options="eachArea.desc for eachArea in AreaModel | filter:{location:fabType}">
                                 <option value=""></option>
 
                             </select>
                         </div>
                     </div>
                     <div class="col-md-1">
-                        <div class='form-group '>
+                        <div class='form-group' ng-show="area.name=='Receive' || area.name=='Delivery'">
                             <label class='control-label'>碼頭號碼</label>
                             <input class='form-control' ng-model="gateID">
                         </div>
@@ -184,7 +233,7 @@
 
 
                     <div class="col-md-1">
-                        <div class='form-group '>
+                        <div class='form-group' ng-show="area.name=='Receive' || area.name=='Delivery'">
                             <label for="sel1">天線</label>
                             <select class="form-control" ng-model="antType" ng-init="antType=AntTypeModel[0]" ng-options="each.desc for each in AntTypeModel">
                             </select>
@@ -199,14 +248,25 @@
                     </div>
 
                     <div class="col-md-1">
-                        <div class='form-group '>
+                   @*     <div class='form-group '>
                             <label for="sel1">過濾</label>
                             <select class="form-control" ng-model="hideTagType" ng-init="hideTagType = TagTypeModel[0]" ng-options="each.desc for each in TagTypeModel">
                             </select>
+                        </div>*@
+                        <div class='form-group '>
+                            <md-input-container>
+                                <label class='control-label'>過濾</label>
+                                <md-select ng-model="selectedTagType" multiple>
+                              
+                                    <md-option ng-value="TagType.name" ng-init="" ng-repeat="TagType in TagTypeModel">{{TagType.desc}}</md-option>
+                              
+                             
+                                </md-select>
+                            </md-input-container>
                         </div>
                     </div>
 
-
+       
                     <div class="col-md-2">
                         <div class='form-group '>
                             <label class='control-label'>開始</label>
@@ -224,7 +284,7 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-2">
                         <div class='form-group'>
                             <label class='control-label'>結束</label>
@@ -240,7 +300,7 @@
                             </select>
                         </div>
                     </div>
-                    
+
                 </div>
 
                 <fieldset>

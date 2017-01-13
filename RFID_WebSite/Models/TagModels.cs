@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Data;
+using Newtonsoft.Json;
 
 namespace RFID_WebSite.Models
 {
@@ -51,7 +52,31 @@ namespace RFID_WebSite.Models
                 {
                     if (!hideTagType.Equals(""))
                     {
-                        sqlString += " and t.type <> '" + hideTagType + "'";
+                        bool Oflag = false;
+                        string typeList = "";
+                        List<string> hideTagTypeList = JsonConvert.DeserializeObject<List<string>>(hideTagType);
+                        if(hideTagTypeList.Count!=0){
+                            
+                            
+                            for(int i = 0; i< hideTagTypeList.Count; i++){
+                                string eachHideTagType = hideTagTypeList[i];
+                                if(eachHideTagType.Equals("O")){
+                                   Oflag = true;
+                                }else if(typeList.Length==0){
+                                    typeList = "'" + eachHideTagType + "'";
+                                }else{
+                                    typeList += ",'" + eachHideTagType + "'";
+                                }
+                            }
+
+
+                        }
+                        if(Oflag){
+                            sqlString += " and t.type in ('T','C','P','F','M')";
+                        }
+                        if(typeList.Length!=0){
+                            sqlString += " and t.type not in (" + typeList + ")";
+                        }
                     }
                 }
                 //if (start != null && end != null)

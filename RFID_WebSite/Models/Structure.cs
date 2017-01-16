@@ -202,9 +202,11 @@ namespace RFID_WebSite.Models
             public string AREA { get; set; }             //出貨/收貨碼頭
             public string GATE { get; set; }             //碼頭門號       
             public string CONTAINER_ID { get; set; }     //貨櫃號碼     
-            public string CAR_ID { get; set; }           //車牌號碼     
+            public string CAR_TYPE { get; set; }
+            public string READER_IP { get; set; }
             public string SIGNAL_LIGHT { get; set; }     //三色燈狀態   
             public string MARQUEE { get; set; }          //字幕機狀態   
+            public string UPDATETIME { get; set; }
         }
         //byEASY
         public class RF_CONTAINERINFO

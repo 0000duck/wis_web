@@ -67,6 +67,45 @@ namespace RFID_WebSite.Models
             }
         }
 
+        public List<Structure.RF_ANTCURRENT> GetGateStatus()
+        {
+            try
+            {
+                List<Structure.RF_ANTCURRENT> GateStatusList = new List<Structure.RF_ANTCURRENT>();
+                OracleDB dbObj = new OracleDB("RFID_DB");
+                string sqlString = @"select t.fab,t.area,t.gate,t1.container_id,t1.cartype,t.readerip,t1.updatetime
+                                      from rf_antmapping t, rf_antcurrent t1
+                                     where t.type = 'CT'
+                                       and t.antnumber < 5
+                                       and t.fab = t1.fab(+)
+                                       and t.area = t1.area(+)
+                                       and t.gate = t1.gate(+)
+                                       order by t.fab,t.area,t.gate";
+                DataTable result = dbObj.SelectSQL(sqlString);
+
+                foreach (DataRow eachRow in result.Rows)
+                {
+                    Structure.RF_ANTCURRENT eachObj = new Structure.RF_ANTCURRENT();
+
+                    eachObj.FAB = eachRow["FAB"].ToString();
+                    eachObj.AREA = eachRow["AREA"].ToString();
+                    eachObj.GATE = eachRow["GATE"].ToString();
+                    eachObj.CONTAINER_ID = eachRow["CONTAINER_ID"].ToString();
+                    eachObj.CAR_TYPE = eachRow["cartype"].ToString();
+
+                    eachObj.READER_IP = eachRow["readerip"].ToString();
+                    eachObj.UPDATETIME = eachRow["UPDATETIME"].ToString();
+
+                    GateStatusList.Add(eachObj);
+                }
+                return GateStatusList;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public List<Structure.CaptionInfo> GetCaptionList(string FAB, string AREA)
         {
             try

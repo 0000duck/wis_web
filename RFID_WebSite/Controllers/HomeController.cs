@@ -416,6 +416,24 @@ namespace RFID_WebSite.Controllers
 
         }
 
+        public JsonResult GetGateStatus()
+        {
+            try
+            {
+                RFID_WebSite.Models.GateInfoModel GateData = new GateInfoModel();
+                List<Structure.RF_ANTCURRENT> Gatainfolist = new List<Structure.RF_ANTCURRENT>();
+
+                Gatainfolist = GateData.GetGateStatus();
+
+                return Json(Gatainfolist, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(e.StackTrace, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         // byEASY
         public JsonResult GateInfo(string FAB, string AREA)
         {
@@ -606,6 +624,10 @@ namespace RFID_WebSite.Controllers
             return View();
         }
         public ActionResult CustCaption()
+        {
+            return View();
+        }
+        public ActionResult GateStatus()
         {
             return View();
         }

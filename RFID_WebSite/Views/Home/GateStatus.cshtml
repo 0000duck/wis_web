@@ -1,0 +1,204 @@
+﻿<script>
+    var InOutSite = angular.module('GateStatus', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+
+
+    InOutSite.controller('Data', function ($scope, $http, $filter) {
+        $scope.CarTypeModel = [
+                        { name: 'C', desc: '貨櫃' },
+                        { name: 'T', desc: '貨車' }
+        ];
+
+        $scope.init = function () {
+            $('.dragInfo').draggable();
+            $scope.Query();
+        };
+
+        
+
+        $scope.Query = function () {
+
+            $http.post("@Url.Action("GetGateStatus", "Home")", {}).success(function (response) {
+
+                $scope.gateListModel = response;
+
+
+            }).error(function (response) {
+                //alert(response);
+            });
+
+        };
+
+        $scope.showBinding = function (gate) {
+            $scope.isInfoShow = true;
+            $scope.Fab = gate.FAB;
+            $scope.Area = gate.AREA;
+            $scope.Gate = gate.GATE;
+            $scope.ReaderIP = gate.READER_IP;
+            $scope.binding();
+
+        }
+
+        $scope.binding = function () {          
+          
+            var GateJson = {
+                Fab:$scope.Fab,
+                Area: $scope.Area,
+                Gate: $scope.Gate,
+                Command: 'SetGateBinding',
+                Content: { ID: CarID, CarType: CarType.name },
+                ReaderIP: $scope.ReaderIP
+            }
+
+            $http.post('http://10.56.195.180:8080/DISWebService/setgate', { custCaptionList: JSON.stringify(GateJson) }).success(function (response) {
+
+                alert(response);
+
+
+            }).error(function (response) {
+                //alert(response);
+            });
+           
+        }
+
+        $scope.unbind = function (gate) {
+
+            var GateJson = {
+                Fab: $scope.Fab,
+                Area: $scope.Area,
+                Gate: $scope.Gate,
+                Command: 'SetGateUnbind',
+                Content: { ID: CarID, CarType: CarType.name },
+                ReaderIP: $scope.ReaderIP
+            }
+
+            $http.post('http://10.56.195.180:8080/DISWebService/setgate', { custCaptionList: JSON.stringify(GateJson) }).success(function (response) {
+
+                alert(response);
+
+
+            }).error(function (response) {
+                //alert(response);
+            });
+
+        }
+
+        $scope.init();
+
+
+    });
+
+</script>
+
+<div class="row" id="popupContainer" ng-app="GateStatus" ng-controller="Data as Ctrl">
+
+    <div class='panel panel-default dragInfo' ng-show="isInfoShow" ng-init="isInfoShow = false" style="position: absolute; z-index: 99; height: 230px; width: 800px; -moz-box-shadow: 0px 0px 8px #363636; -webkit-box-shadow: 0px 0px 8px #363636; box-shadow: 0px 0px 8px #363636;">
+        <div class='panel-heading'>
+            <i class='icon-edit icon-large'></i>
+            <strong>綁定車輛</strong>
+        </div>
+        <div class='panel-body'>
+
+            <table class='table'>
+                <thead>
+                    <tr>
+                        <th>廠區</th>
+                        <th>區域</th>
+                        <th>碼頭</th>
+                        <th>車號</th>
+                        <th>類型</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+
+                        <td>
+                            {{Fab}}
+                        </td>
+
+                        <td>
+                            {{Area}}
+                        </td>
+
+                        <td>
+                            {{Gate}}
+                        </td>
+
+                        <td>
+                            <input type="text" class="form-control" ng-model="CarID" onkeyup="value=value.toUpperCase() ">
+                        </td>
+
+                        <td>
+                           
+                        <div class='form-group'>
+                      
+                            <select class="form-control" ng-model="CarType" ng-init="CarType=CarTypeModel[0]" ng-options="each.desc for each in CarTypeModel">
+                            </select>
+                        </div>
+                  
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <div class='form-actions'>
+                <button class='btn btn-primary' type='submit' ng-click="binding()">確定</button>
+                <button class='btn btn-warning' type='submit' ng-click="isInfoShow=false">取消</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><strong>碼頭狀態</strong></h3>
+            </div>
+
+            <div class="panel-body">
+                
+                <div class="row">
+                    <div class="col-md-12  ">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+
+                                    <th>廠區</th>
+                                    <th>區域</th>
+                                    <th>碼頭</th>
+                                    <th>車號</th>
+                                    <th>類型</th>
+                                    <th>異動時間</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="each in gateListModel">
+
+                                    <td>{{each.FAB}}</td>
+                                    <td>{{each.AREA}}</td>
+                                    <td>{{each.GATE}}</td>
+                                    <td>{{each.CONTAINER_ID}}</td>
+                                    <td>{{each.CAR_TYPE}}</td>
+                                    <td>{{each.UPDATETIME}}</td>
+                                    <td>
+                                        <button type="submit" class="btn btn-info" ng-disabled="each.CONTAINER_ID!=''" ng-click="showBinding(each)">綁定車輛</button></td>
+                                    <td>
+                                        <button type="submit" class="btn btn-warning" ng-disabled="each.CONTAINER_ID==''" ng-click="unbind(each)">解除綁定</button></td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+                       
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>

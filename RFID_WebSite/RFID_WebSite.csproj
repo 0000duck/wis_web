@@ -433,6 +433,7 @@
     <Content Include="Views\Home\TagHistory.cshtml" />
     <Content Include="Views\Home\SearchTagHistory.cshtml" />
     <Content Include="Views\Home\CustCaption.cshtml" />
+    <Content Include="Views\Home\GateStatus.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

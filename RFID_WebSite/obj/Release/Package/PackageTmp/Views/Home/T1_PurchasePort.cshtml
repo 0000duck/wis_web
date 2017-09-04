@@ -36,10 +36,14 @@
 
                        <tr  ng-repeat="eachGate in GateInfo" ng-show="($index+1)<=3">
                             <td>
+                                
                                 <img src="~/Images/{{$index+1}}.png" class="img-responsive " alt="Responsive image">
+                                
+                                
+                                   
                             </td>
                             <td>
-
+                                
                                 <img src="~/Images/Guest.PNG" class="img-responsive " alt="Responsive image" ng-show="eachGate.CAR_TYPE=='Guest'">
                                 <img src="~/Images/Truck.PNG" class="img-responsive " alt="Responsive image" ng-show="eachGate.CAR_TYPE=='Truck'">
                                 <img src="~/Images/Container.PNG" class="img-responsive " alt="Responsive image" ng-show="eachGate.CAR_TYPE=='Container'">
@@ -50,7 +54,7 @@
 
                                     <li class="list-group-item" ng-show="eachGate.CAR_TYPE!='Container'">車牌
                                         <span class="label label-primary">{{eachGate.CAR_ID}}</span>
-
+                                       
                                     </li>
                                     <li class="list-group-item" ng-show="eachGate.CAR_TYPE=='Container'">貨櫃號碼
                                         <span class="label label-primary">{{eachGate.CONTAINER_ID}}</span>

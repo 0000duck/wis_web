@@ -23,6 +23,8 @@
     .pagination {
         margin: 5px 12px !important;
     }
+
+   
 </style>
 <script>
     var InOutSite = angular.module('History', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
@@ -54,8 +56,8 @@
 
         $scope.TypeModel = ['T1',
                              'T2'];
-        $scope.AreaModel = [{ name: 'Receive', desc: '收貨區' ,location:'T1'},
-                            { name: 'Delivery', desc: '出貨區', location: 'T1'},
+        $scope.AreaModel = [{ name: 'Receive', desc: '收貨區', location: 'T1' },
+                            { name: 'Delivery', desc: '出貨區', location: 'T1' },
                             { name: 'Receive', desc: '收貨區', location: 'T2' },
                             { name: 'Delivery', desc: '出貨區', location: 'T2' },
                             { name: 'INCP', desc: '進中櫃廠', location: 'T2' },
@@ -64,17 +66,25 @@
                             { name: 'T2DP', desc: 'T2分流點', location: 'T2' },
                             { name: 'E1', desc: '異常天線1', location: 'T1' },
                             { name: 'E2', desc: '異常天線2', location: 'T1' },
-                            { name: 'E3', desc: '異常天線3', location: 'T1' }];
+                            { name: 'E3', desc: '異常天線3', location: 'T1' },
+                            { name: 'Cylinders', desc: '氣體鋼瓶區', location: 'T2' }];
         $scope.AntTypeModel = [{ name: '', desc: '請選擇...' },
-                        { name: 'CT', desc: '貨櫃' },
-                        { name: 'DN', desc: '棧板' }
+                        { name: 'CT', desc: '貨櫃', areaName: 'Receive' },
+                        { name: 'DN', desc: '棧板', areaName: 'Receive' },
+                        { name: 'CT', desc: '貨櫃', areaName: 'Delivery' },
+                        { name: 'DN', desc: '棧板', areaName: 'Delivery' },
+                        { name: 'SS', desc: '小鋼瓶庫存', areaName: 'Cylinders' },
+                        { name: 'SU', desc: '小鋼瓶使用', areaName: 'Cylinders' },
+                        { name: 'BS', desc: '大鋼瓶庫存', areaName: 'Cylinders' },
+                        { name: 'BU', desc: '大鋼瓶使用', areaName: 'Cylinders' }
         ];
         $scope.TagTypeModel = [{ name: 'O', desc: '非定義' },
                         { name: 'C', desc: '貨櫃' },
                         { name: 'T', desc: '貨車' },
                         { name: 'P', desc: '棧板' },
                         { name: 'F', desc: '堆高機' },
-                        { name: 'M', desc: '地上' }];
+                        { name: 'M', desc: '地上' },
+                        { name: 'IR', desc: '紅外線' }];
         $scope.selectedTagType = ['O'];
         $scope.HoursModel = ['00',
                              '01',
@@ -95,9 +105,17 @@
 
             var s = Date.parse(queryStartTime);
             var e = Date.parse(queryEndTime);
+
             var tmpArea = $scope.area.name;
-            var tmpAntType = $scope.antType.name;
+
+            var tmpAntType = '';
+
+            if ($scope.antType != null) {
+                tmpAntType = $scope.antType.name;
+            }
+
             var tmpGateID = $scope.gateID;
+            //$scope.selectedTagType = ['O'];
 
             switch ($scope.area.name) {
 
@@ -136,8 +154,13 @@
                     tmpAntType = 'AB';
                     tmpArea = 'Receive';
                     break;
+                case 'Cylinders':
+                    tmpGateID = '0';
+                    //$scope.selectedTagType = [];
+                    break;
+
             }
-            
+
 
             if (tmpArea == undefined) {
                 alert('請選擇區域');
@@ -158,11 +181,11 @@
             } else if ((e - s) / 1000 / 60 / 60 > 1) {
                 alert('搜尋條件不可超過1小時');
             } else {
-                
 
 
+                $scope.showProgress = true;
                 $http.post("@Url.Action("GetTagHistory", "Home")", { area: tmpArea, gateID: tmpGateID, fab: $scope.fabType, antType: tmpAntType, hideTagType: JSON.stringify($scope.selectedTagType), start: queryStartTime, end: queryEndTime }).success(function (response) {
-
+                    $scope.showProgress = false;
                     $scope.hisResult = response;
                     $scope.curPage = 0;
 
@@ -233,9 +256,9 @@
 
 
                     <div class="col-md-1">
-                        <div class='form-group' ng-show="area.name=='Receive' || area.name=='Delivery'">
+                        <div class='form-group' ng-show="area.name=='Receive' || area.name=='Delivery' || area.name=='Cylinders'">
                             <label for="sel1">天線</label>
-                            <select class="form-control" ng-model="antType" ng-init="antType=AntTypeModel[0]" ng-options="each.desc for each in AntTypeModel">
+                            <select class="form-control" ng-model="antType" ng-init="antType=AntTypeModel[0]" ng-options="each.desc for each in AntTypeModel  | filter:{areaName:area.name}">
                             </select>
                         </div>
                     </div>
@@ -248,7 +271,7 @@
                     </div>
 
                     <div class="col-md-1">
-                   @*     <div class='form-group '>
+                        @*     <div class='form-group '>
                             <label for="sel1">過濾</label>
                             <select class="form-control" ng-model="hideTagType" ng-init="hideTagType = TagTypeModel[0]" ng-options="each.desc for each in TagTypeModel">
                             </select>
@@ -266,7 +289,7 @@
                         </div>
                     </div>
 
-       
+
                     <div class="col-md-2">
                         <div class='form-group '>
                             <label class='control-label'>開始</label>
@@ -302,10 +325,13 @@
                     </div>
 
                 </div>
-
+                <div class="container" ng-init="showProgress=false" ng-show="showProgress">
+                        <md-progress-linear md-mode="query"></md-progress-linear>
+                        
+                    </div>
                 <fieldset>
                     <legend></legend>
-
+                    
                     <table class='table table-striped table-bordered'>
                         <thead>
                             <tr>
@@ -334,8 +360,8 @@
                                 <td>{{eachRow.tagID}}</td>
                                 <td>{{eachRow.count}}</td>
                                 <td>{{eachRow.rssi}}</td>
-                                <td>{{eachRow.type.replace("C", "貨櫃").replace("T", "卡車").replace("P", "棧板").replace("M", "地上").replace("F", "堆高機")}}</td>
-                                <td>{{eachRow.antType.replace("CT", "貨櫃天線").replace("DN", "棧板天線").replace("AB", "解異常天線")}}</td>
+                                <td>{{eachRow.type.replace("C", "貨櫃").replace("T", "卡車").replace("P", "棧板").replace("M", "地上").replace("F", "堆高機").replace("IR", "紅外線")}}</td>
+                                <td>{{eachRow.antType.replace("CT", "貨櫃天線").replace("DN", "棧板天線").replace("AB", "解異常天線").replace("SS", "小鋼瓶庫存").replace("SU", "小鋼瓶使用").replace("BS", "大鋼瓶庫存").replace("BU", "大鋼瓶使用")}}</td>
                                 <td>{{eachRow.rawData}}</td>
                                 <td>{{eachRow.discoverTime}}</td>
                                 <td>{{eachRow.reNewTime}}</td>

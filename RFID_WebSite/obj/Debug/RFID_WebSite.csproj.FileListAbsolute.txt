@@ -82,11 +82,6 @@ C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_W
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\DotNetOpenAuth.OpenId.dll
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\DotNetOpenAuth.OpenId.RelyingParty.dll
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\EntityFramework.dll
-C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.AspNet.SignalR.Core.dll
-C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.AspNet.SignalR.SystemWeb.dll
-C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.Owin.dll
-C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.Owin.Host.SystemWeb.dll
-C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.Owin.Security.dll
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.Web.Infrastructure.dll
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.Web.WebPages.OAuth.dll
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Newtonsoft.Json.dll
@@ -104,11 +99,6 @@ C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_W
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\WebGrease.dll
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\WebMatrix.Data.dll
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\WebMatrix.WebData.dll
-C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.AspNet.SignalR.Core.xml
-C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.AspNet.SignalR.SystemWeb.xml
-C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.Owin.xml
-C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.Owin.Host.SystemWeb.xml
-C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Microsoft.Owin.Security.xml
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\Newtonsoft.Json.xml
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\EntityFramework.xml
 C:\Users\Administrator\Documents\Visual Studio 2012\Projects\RFID_WebSite\RFID_WebSite\bin\System.Net.Http.Formatting.xml

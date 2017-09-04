@@ -74,6 +74,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -189,14 +191,20 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BCRecipeBodyController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\SPCYController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Models\BCModels.cs" />
+    <Compile Include="Models\ResponseContent.cs" />
     <Compile Include="Models\GateInfoModel.cs" />
     <Compile Include="Models\ContainerModels.cs" />
     <Compile Include="Models\LayoutModel.cs" />
+    <Compile Include="Models\SPCYModels.cs" />
+    <Compile Include="Models\SsoModel.cs" />
     <Compile Include="Models\Structure.cs" />
     <Compile Include="Models\TagModels.cs" />
     <Compile Include="Models\VendorListModel.cs" />
@@ -207,12 +215,14 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\angular-block-ui.css" />
     <Content Include="Content\angular-material.css" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\datetimepicker.css" />
     <Content Include="Content\docs.css" />
     <Content Include="Content\font-awesome.min.css" />
+    <Content Include="Content\material-datetimepicker.css" />
     <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="Content\jquery-ui.css" />
     <Content Include="Content\jquery-ui.structure.css" />
@@ -299,6 +309,8 @@
     <Content Include="Scripts\alasql.min.js" />
     <Content Include="Scripts\angular-animate.min.js" />
     <Content Include="Scripts\angular-aria.min.js" />
+    <Content Include="Scripts\angular-block-ui.js" />
+    <Content Include="Scripts\angular-material-datetimepicker.js" />
     <Content Include="Scripts\angular-material.js" />
     <Content Include="Scripts\angular-messages.min.js" />
     <Content Include="Scripts\angular-route.min.js" />
@@ -310,8 +322,7 @@
     <Content Include="Scripts\jquery-ui.js" />
     <Content Include="Scripts\jquery.contextMenu.min.js" />
     <Content Include="Scripts\jquery.js" />
-    <Content Include="Scripts\jquery.signalR-2.1.2.js" />
-    <Content Include="Scripts\jquery.signalR-2.1.2.min.js" />
+    <Content Include="Scripts\jquery.signalR-2.2.1.js" />
     <Content Include="Scripts\jszip.js" />
     <Content Include="Scripts\knockout-2.1.0.debug.js" />
     <Content Include="Scripts\knockout-2.1.0.js" />
@@ -434,6 +445,16 @@
     <Content Include="Views\Home\SearchTagHistory.cshtml" />
     <Content Include="Views\Home\CustCaption.cshtml" />
     <Content Include="Views\Home\GateStatus.cshtml" />
+    <Content Include="Views\Home\SourceList.cshtml" />
+    <Content Include="Views\BCRecipeBody\Index.cshtml" />
+    <Content Include="Views\Home\RFAttenuation.cshtml" />
+    <Content Include="Views\BCRecipeBody\Query.cshtml" />
+    <Content Include="Views\SPCY\Config.cshtml" />
+    <Content Include="Views\SPCY\ErrorLog.cshtml" />
+    <Content Include="Scripts\angular-material-datetimepicker.js.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

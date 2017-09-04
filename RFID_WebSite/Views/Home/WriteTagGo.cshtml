@@ -166,15 +166,23 @@
                 vendor: $scope.VendorNameIN,
                 driverName: $scope.DriverNameIN,
                 driverPhone: $scope.DriverPhoneIN,
-                reason: ' ',//$scope.Reason.type,
+                reason: '',
                 fab: mFab,
                 area: $scope.Location.name,
                 gate: '0',
                 status: containerQueryResult,
                 carType: cartype,//$scope.CarType.type
                 vendorID: $scope.GuestIdIN,
-                vendorcount: VendorCount
+                vendorcount: VendorCount,
+                source: ''
             };
+            
+            if ($scope.Receive) {
+                jsonStr.reason = 'Receive';
+            } else if ($scope.Delivery) {
+                jsonStr.reason = 'Delivery';
+                jsonStr.source = $scope.Source.NAME;
+            }
             $http.post("@Url.Action("AddContainerInfo", "Home")", { jsonObj: JSON.stringify(jsonStr) }).success(function (response) {
                 if (response.status == 'NG') {
                     alert(response.detail);
@@ -250,12 +258,19 @@
                     driverPhone: $scope.DriverPhoneIN,
                     vendor_name: $scope.VendorNameIN,
                     reason: '',
+                    source:'',
                     fab: mFab,
                     area: $scope.Location.name,
                     gate: '0',
                     container_status: containerQueryResult,
                     car_type: cartype
                 };
+                if ($scope.Receive) {
+                    jsonStr.reason = 'Receive';
+                } else if ($scope.Delivery) {
+                    jsonStr.reason = 'Delivery';
+                    jsonStr.source = $scope.Source.NAME;
+                }
                 jsonStr.fab = $scope.Fab;
                 jsonStr.area = 'Enter';
                 $http.post("@Url.Action("AddContainerHistory", "Home")", { jsonObj: JSON.stringify(jsonStr) }).success(function (response) {
@@ -435,6 +450,18 @@
             });
         };
 
+        $scope.getSourceList = function () {
+            $http.post("@Url.Action("getSourceList", "Home")", {}).success(function (response) {
+
+                $scope.SourceModel = JSON.parse(response);
+
+
+            }).error(function (response) {
+                alert(response);
+            });
+        };
+
+        $scope.SourceModel = [];
 
         $scope.LocationModel = [{ name: '', desc: '請選擇...' },
                         { name: 'WH', desc: 'WH+OB' },
@@ -596,11 +623,17 @@
             $http.post("@Url.Action("GetHostName", "Home")", {}).success(function (response) {
                 var computerName = response.toUpperCase();
                 switch (computerName) {
-                    case 'CNEB3301':
+                    case 'HP02339P':
                         $scope.WriterLocation = 'T1SecurityWriter';
                         $scope.Fab = 'T1';
                         break;
+
+                    case 'HP02340P':
+                        $scope.WriterLocation = 'T2Security2Writer';
+                        $scope.Fab = 'T2';
+                        break;
                     case 'CNEB2399':
+                    
                         $scope.WriterLocation = 'T2SecurityWriter';
                         $scope.Fab = 'T2';
                         break;
@@ -861,7 +894,7 @@
                                         貨櫃
                                     </label>
                                     <label class="checkbox-inline">
-                                        <md-checkbox ng-init="TruckIN=false" ng-model="TruckIN" ng-change="chkContainerIN=false;emptyTruckIN=false;chkGuestIN=false;checkboxChange();">
+                                        <md-checkbox ng-init="TruckIN=false" ng-model="TruckIN" ng-change="chkContainerIN=false;emptyTruckIN=false;chkGuestIN=false;checkboxChange();getSourceList();">
                                         貨車
                                     </label>
                                     <label class="checkbox-inline">
@@ -909,9 +942,21 @@
                                     <select class="form-control" ng-model="Location" ng-show="TruckIN || emptyTruckIN || chkGuestIN || chkContainerIN" ng-init="Location=LocationModel[0]" ng-options="each.desc for each in LocationModel">
                                     </select>
                                 </div>
-
+                                <label class="checkbox-inline" ng-show="TruckIN">
+                                    <md-checkbox ng-init="Delivery=false" ng-model="Delivery" ng-change="Receive=false">
+                                    送貨
+                                </label>
+                                <label class="checkbox-inline" ng-show="TruckIN">
+                                    <md-checkbox ng-init="Receive=false" ng-model="Receive" ng-change="Delivery=false">
+                                    取貨
+                                </label>
+                                <div class="form-group" ng-show="TruckIN && Delivery">
+                                    <label for="sel1">廠商</label>
+                                    <select class="form-control" ng-model="Source" ng-options="each.ID+'-'+each.NAME for each in SourceModel">
+                                    </select>
+                                </div>
                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-primary" ng-model="WtiteTagIN" ng-show="((TruckIN && CarIdIN) || (chkContainerIN && ContainerTypeIN != '' && ContainerIdIN)) && (VendorNameIN && VendorNameIN != '查無人員資料') && Location.name != ''" ng-click="inPage=true;outPage=false;WriteTagINsubmit()" ng-init="disableButton = false;writeBtnText='寫入'" ng-disabled="disableButton">{{writeBtnText}}</button>
+                                    <button type="submit" class="btn btn-primary" ng-model="WtiteTagIN" ng-show="((TruckIN && CarIdIN) || (chkContainerIN && ContainerTypeIN != '' && ContainerIdIN)) && (VendorNameIN && VendorNameIN != '查無人員資料') && Location.name != '' && ((Source != null || Receive)|| !TruckIN) && ((Delivery || Receive) || !TruckIN)" ng-click="inPage=true;outPage=false;WriteTagINsubmit()" ng-init="disableButton = false;writeBtnText='寫入'" ng-disabled="disableButton">{{writeBtnText}}</button>
                                     <button type="submit" class="btn btn-primary" ng-model="SaveFileIN" ng-show="(emptyTruckIN || (chkGuestIN && GuestNumIN != '請選擇人數')) && CarIdIN && (VendorNameIN && VendorNameIN != '查無人員資料') && Location.name != ''" ng-init="disableButton1 = false" ng-disabled="disableButton1" ng-click="inPage=true;outPage=false;SaveFileINsubmit()">存檔</button>
                                 </div>
                             </div>
@@ -928,6 +973,7 @@
                                         <select class="form-control" ng-model="GuestNumIN" ng-init="GuestNumIN=GuestNumMode[0]" ng-options="eachType for eachType in GuestNumMode">
                                         </select>
                                     </div>
+                                    
                                 </div>
                                 <div class="form-group">
                                     <div class="panel panel-default">
@@ -937,7 +983,7 @@
                                         <div class="panel-body">
                                             <form class="row form-horizontal">
                                                 <div class="form-group">
-                                                    <label class="col-sm-3 control-label">廠商名稱</label>
+                                                    <label class="col-sm-3 control-label">運輸車行</label>
                                                     <div class="col-sm-6">
                                                         <input type="text" class="form-control" id="" ng-model="VendorNameIN" disabled="disabled">
                                                     </div>
@@ -1033,7 +1079,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <div class="panel panel-default" ng-init="VendorDetailOUT =='true'">
+                                    <div class="panel panel-default" ng-init="VendorDetailOUT ='true'">
                                         <div class="panel-heading">
                                             <h3 class="panel-title"><strong>基本資料</strong></h3>
                                         </div>

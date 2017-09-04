@@ -163,7 +163,9 @@
                                 <th>車牌</th>
                                 <th>種類</th>
                                 <th>狀態</th>
+                                <th>目的</th>
                                 <th>廠商</th>
+                                <th>車行</th>
                                 <th>車種</th>
                                 <th>司機</th>
                                 <th>電話</th>
@@ -182,6 +184,8 @@
                                 <td>{{eachRow.car_id}}</td>
                                 <td>{{eachRow.container_type}}</td>
                                 <td>{{eachRow.container_status.replace("NonEmpty", "重櫃").replace("Empty", "空櫃")}}</td>
+                                <td>{{eachRow.reason}}</td>
+                                <td>{{eachRow.source}}</td>
                                 <td>{{eachRow.vendor_name}}</td>
                                 <td>{{eachRow.car_type.replace("Container", "貨櫃").replace("Guest", "訪客").replace("Truck", "貨車")}}</td>
                                 <td>{{eachRow.driverName}}</td>

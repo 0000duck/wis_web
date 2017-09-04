@@ -1,0 +1,159 @@
+﻿<script>
+    var InOutSite = angular.module('GateStatus', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+    InOutSite.directive('numbersOnly', function () {
+        return {
+            require: 'ngModel',
+            link: function (scope, element, attrs, modelCtrl) {
+                modelCtrl.$parsers.push(function (inputValue) {
+                    if (inputValue == undefined) return ''
+                    var transformedInput = inputValue.replace(/^0+|[^0-9]+/g, '');
+                    if (transformedInput != inputValue) {
+                        modelCtrl.$setViewValue(transformedInput);
+                        modelCtrl.$render();
+                    }
+
+                    return transformedInput;
+                });
+            }
+        };
+    });
+
+    InOutSite.controller('Data', function ($scope, $http, $filter, $interval) {
+
+
+        $scope.TypeModel = ['T1',
+                             'T2'];
+
+        $scope.init = function () {
+
+
+        };
+
+        $scope.Save = function (each) {
+
+            $http.post("@Url.Action("UpdateAntSetting", "Home")", { eachSetting: JSON.stringify(each) }).success(function (response) {
+
+                $scope.Query();
+
+
+            }).error(function (response) {
+                //alert(response);
+            });
+
+        };
+
+        $scope.Query = function () {
+
+            $http.post("@Url.Action("GetAntSetting", "Home")", { Fab: $scope.Fab, Area: $scope.Area }).success(function (response) {
+
+                $scope.gateListModel = response;
+
+
+            }).error(function (response) {
+                //alert(response);
+            });
+
+        };
+
+
+        $scope.GetAreaList = function () {
+
+            $http.post("@Url.Action("GetAreaList", "Home")", { Fab: $scope.Fab }).success(function (response) {
+
+                $scope.AreaModel = response;
+                $scope.Area = {};
+                $scope.gateListModel = [];
+
+            }).error(function (response) {
+                //alert(response);
+            });
+
+        };
+
+
+
+        
+
+
+
+        //$interval(function () { $scope.Query(); }, 3000);
+
+    });
+
+</script>
+
+<div class="row" id="popupContainer" ng-app="GateStatus" ng-controller="Data as Ctrl">
+
+
+
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><strong>碼頭狀態</strong></h3>
+            </div>
+
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class='form-group '>
+                            <label class='control-label'>廠區</label>
+                            <select class='form-control' ng-model="Fab" ng-options="each for each in TypeModel" ng-change="GetAreaList()">
+                                <option value="">-- 請選擇 --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class='form-group '>
+                            <label class='control-label'>區域</label>
+                            <select class='form-control' ng-model="Area" ng-options="each.replace('Receive', '收貨碼頭').replace('Delivery', '出貨碼頭').replace('CentralParking', '中櫃場').replace('Cylinders', '毒性氣體房') for each in AreaModel" ng-change="Query()">
+                                <option value="">-- 請選擇 --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12  ">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+
+                                    <th>IP</th>
+                                    
+                                    <th>碼頭</th>
+                                    <th>天線</th>
+                                    <th>天線號碼</th>
+                                    <th>設定值</th>
+                                    <th></th>
+                                    <th>異動時間</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="each in gateListModel | filter:{ FAB : fabType }">
+
+                                    <td>{{each.ReaderIP}}</td>
+                                    
+                                    <td>{{each.Gate}}</td>
+                                    <td>{{each.Type.replace("SS", "小鋼瓶庫存").replace("SU", "小鋼瓶使用").replace("BS", "大鋼瓶庫存").replace("BU", "大鋼瓶使用").replace("CT", "貨櫃").replace("DN", "棧板").replace("INCP", "進中櫃場").replace("OUTCP", "出中櫃場").replace("T2DP", "T2分流").replace("T1DP", "T1分流").replace("AB", "解異常")}}</td>
+                                    <td>{{each.AntNumber}}</td>
+                                    <td>  
+                                         <input class='form-control' type='text' numbers-only="numbers-only" ng-model="each.Value">
+                                        </td>
+                                        <td>  
+                                        <button type="submit" class="btn-xs btn-success" ng-click="Save(each)">設定</button></td>
+                                    <td>{{each.UpdateTime}} </td>
+
+                                </tr>
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>

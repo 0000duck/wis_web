@@ -9,11 +9,14 @@
 <script src="~/Scripts/angular-material.js"></script>
 <script src="~/Scripts/angular-messages.min.js"></script>
 <script src="~/Scripts/svg-assets-cache.js"></script>
-<script src="~/Scripts/jquery.signalR-2.1.2.js"></script>
+<script src="~/Scripts/jquery.signalR-2.2.1.js"></script>
 <script src="~/Scripts/jquery.contextMenu.min.js"></script>
 <script src="~/Scripts/moment-with-locales.min.js"></script>
 <script src="~/Scripts/ui-bootstrap-tpls-1.2.5.js"></script>
 <script src="~/signalr/hubs"></script>
+<script src="~/Scripts/angular-material-datetimepicker.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<link href="~/Content/material-datetimepicker.css" rel="stylesheet" />
 
 <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
 <link href="~/Content/bootstrap.css" rel="stylesheet" />
@@ -145,21 +148,25 @@
                 </li>
 
                 <li class="dropdown @(ViewContext.RouteData.Values["Action"].ToString() == "T1_PurchasePort" || ViewContext.RouteData.Values["Action"].ToString() == "T2_PurchasePort" || ViewContext.RouteData.Values["Action"].ToString() == "T2_PurchasePort" || ViewContext.RouteData.Values["Action"].ToString() == "T1_PurchasePort" ? "active" : "")">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">收貨碼頭 <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">碼頭 <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li><a href="@Url.Action("T1_PurchasePort", "Home")">T1收貨碼頭</a></li>
                         <li><a href="@Url.Action("T1_ShipingPort", "Home")">T1出貨碼頭</a></li>
                         <li><a href="@Url.Action("T2_PurchasePort", "Home")">T2收貨碼頭</a></li>
                         <li><a href="@Url.Action("T2_ShipingPort", "Home")">T2出貨碼頭</a></li>
+                        <li><a href="@Url.Action("GateStatus", "Home")">手動綁定/解除</a></li>
+                        <li><a href="@Url.Action("RFAttenuation", "Home")">天線功率設定</a></li>
                     </ul>
                 </li>
                 <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Data" ? "active" : "")">
                     <a href="@Url.Action("Data", "Home")">統計資料</a>
                 </li>
                 <li>
-                    <a href="@Url.Action("VendorManagement", "Home")">廠商主檔</a>@*byEASY*@
+                    <a href="@Url.Action("VendorManagement", "Home")">運輸車行</a>@*byEASY*@
                 </li>
-
+                <li>
+                    <a href="@Url.Action("SourceList", "Home")">廠商主檔</a>@*byEASY*@
+                </li>
               
                 <li class="dropdown @(ViewContext.RouteData.Values["Action"].ToString() == "TagHistory" || ViewContext.RouteData.Values["Action"].ToString() == "SearchTagHistory" ? "active" : "")">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">讀取紀錄 <b class="caret"></b></a>

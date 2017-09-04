@@ -72,7 +72,7 @@ namespace RFID_WebSite.Models
 
                         }
                         if(Oflag){
-                            sqlString += " and t.type in ('T','C','P','F','M')";
+                            sqlString += " and t.type in ('T','C','P','F','M','IR')";
                         }
                         if(typeList.Length!=0){
                             sqlString += " and t.type not in (" + typeList + ")";
@@ -82,6 +82,7 @@ namespace RFID_WebSite.Models
                 //if (start != null && end != null)
                 //{
                 sqlString += " and t.timestamp between '" + start + "' and '" + end + "'";
+                sqlString += " and rownum < 5000";
                 sqlString += " order by t.timestamp desc";
                 //}
                 //else

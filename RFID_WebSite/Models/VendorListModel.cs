@@ -9,6 +9,59 @@ namespace RFID_WebSite.Models
 {
     public class VendorListModel
     {
+
+        public DataTable GetSource()
+        {
+            OracleDB dbObj = new OracleDB("RFID_DB");
+            string sqlString = @"select * from rf_sourcemanagement t order by to_number(t.id)";           
+            DataTable result = dbObj.SelectSQL(sqlString);
+            return result;
+        }
+
+        public string DeleteSource(Structure.Source data)
+        {
+            try
+            {
+                OracleDB dbObj = new OracleDB("RFID_DB");
+                string sqlString = @"
+                                    delete from rf_sourcemanagement t
+                                    where t.id='{0}'";
+                sqlString = String.Format(sqlString, data.ID);
+                dbObj.ExcuteNoQuery(sqlString);
+                return "OK";
+
+            }
+            catch (Exception e)
+            {
+                return "NG";
+            }
+
+        }
+
+        public string ModifySource(Structure.Source data)
+        {
+            try
+            {
+                OracleDB dbObj = new OracleDB("RFID_DB");
+                string sqlString = @"delete from rf_sourcemanagement t
+                                    where t.id='{0}' ";
+                sqlString = string.Format(sqlString, data.ID);
+                dbObj.ExcuteNoQuery(sqlString);
+
+                sqlString = @"insert into rf_sourcemanagement t (t.id,t.name) values('{0}','{1}')";
+                sqlString = string.Format(sqlString, data.ID, data.NAME);
+                dbObj.ExcuteNoQuery(sqlString);
+
+                return "OK";
+
+            }
+            catch (Exception e)
+            {
+                return "NG"; 
+            }
+        } 
+
+
         public DataTable getVendorData(String GuestId){
                 OracleDB dbObj = new OracleDB("RFID_DB");
                 string sqlString = @"select t.* from rf_vendormanagement t where t.vendorid='{0}'";

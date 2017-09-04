@@ -291,10 +291,11 @@ namespace RFID_WebSite.Models
                                        t.driverphone,
                                        t.reason,
                                        t.vendorid,             
-                                       t.vendorcount
+                                       t.vendorcount,
+                                       t.source
                                         )
-                                    VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}','{10}','{11}','{12}','{13}','{14}','{15}','{16}')";
-                sqlString = string.Format(sqlString, data.ID, data.type, data.status, data.vendor, data.start, data.end, data.carID, data.fab, data.area, data.gate, data.carType, data.impNo, data.driverName, data.driverPhone, data.reason, data.VENDORID, data.VENDORCOUNT);
+                                    VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}','{10}','{11}','{12}','{13}','{14}','{15}','{16}','{17}')";
+                sqlString = string.Format(sqlString, data.ID, data.type, data.status, data.vendor, data.start, data.end, data.carID, data.fab, data.area, data.gate, data.carType, data.impNo, data.driverName, data.driverPhone, data.reason, data.VENDORID, data.VENDORCOUNT,data.source);
                 dbObj.ExcuteNoQuery(sqlString);
 
             }
@@ -343,10 +344,11 @@ namespace RFID_WebSite.Models
                                        t.drivername,
                                        t.driverphone,
                                        t.reason,
-                                       t.timestamp)
+                                       t.timestamp,
+                                       t.source)
                                     VALUES
-                                      ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}','{10}','{11}','{12}')";
-                sqlString = string.Format(sqlString, data.container_id, data.fab, data.area, data.gate, data.car_id, data.container_type, data.container_status, data.vendor_name, data.car_type, data.driverName, data.driverPhone, data.reason, data.timestamp);
+                                      ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}','{10}','{11}','{12}','{13}')";
+                sqlString = string.Format(sqlString, data.container_id, data.fab, data.area, data.gate, data.car_id, data.container_type, data.container_status, data.vendor_name, data.car_type, data.driverName, data.driverPhone, data.reason, data.timestamp,data.source);
                 dbObj.ExcuteNoQuery(sqlString);
 
             }
@@ -355,6 +357,39 @@ namespace RFID_WebSite.Models
                 throw e;
             }
         }
+        public string GetShipTo(string id)
+        {
+            string shipTo = "";
+            try
+            {
+                
+                OracleDB dbObj = new OracleDB("RFID_DB");
+                //string sqlString = @"delete from wmsuser.rf_containerinfo t where t.container_id = '{0}'";
+
+                string sqlString = @"select ship_to from jn_t2_wms.v_t2_wms_container_status@DW2T2WMS
+                                        where container_no = '{0}' or truck_no = '{0}'
+                                        union
+                                        select ship_to from jn_t1_wms.v_t1_wms_container_status@DW2T1WMS
+                                        where container_no = '{0}' or truck_no = '{0}'";
+                sqlString = string.Format(sqlString, id);
+                DataTable result = dbObj.SelectSQL(sqlString);
+                if (result.Rows.Count > 0)
+                {
+                    foreach (DataRow eachRow in result.Rows)
+                    {
+                        shipTo = eachRow["ship_to"].ToString();
+                        break;
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            return shipTo;
+        }
+
 
         public Structure.containerInfo GetContainer(string id)
         {
@@ -558,7 +593,8 @@ namespace RFID_WebSite.Models
                                                t.driverName,
                                                t.driverPhone,
                                                t.reason,
-                                               t.timestamp
+                                               t.timestamp,
+                                               t.source
                                           from wmsuser.rf_movehistory t
                                          where 1 = 1";
                 if (containerID != null)
@@ -612,7 +648,7 @@ namespace RFID_WebSite.Models
                     each.driverPhone = eachRow["driverPhone"].ToString();
                     each.reason = eachRow["reason"].ToString();
                     each.timestamp = eachRow["timestamp"].ToString();
-
+                    each.source = eachRow["source"].ToString();
                     ContainerHistory.Add(each);
 
                 }

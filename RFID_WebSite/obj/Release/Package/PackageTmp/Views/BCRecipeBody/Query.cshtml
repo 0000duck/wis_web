@@ -1,0 +1,298 @@
+﻿<script src="~/Scripts/alasql.min.js"></script>
+<script src="~/Scripts/xlsx.core.min.js"></script>
+<style>
+    .paginationclass {
+        margin: 19px 28px;
+    }
+
+        .paginationclass span {
+            margin-left: 15px;
+            display: inline-block;
+        }
+
+    .pagination-controle li {
+        display: inline-block;
+    }
+
+    .pagination-controle button {
+        font-size: 12px;
+        margin-top: -26px;
+        cursor: pointer;
+    }
+
+    .pagination {
+        margin: 5px 12px !important;
+    }
+</style>
+<script>
+    var InOutSite = angular.module('History', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+    angular.module('History').filter('pagination', function () {
+        return function (input, start) {
+            start = +start;
+            return input.slice(start);
+        };
+    });
+
+    InOutSite.controller('Data', function ($scope, $http, $filter, $timeout, $mdDialog) {
+        $scope.init = function () {
+            $scope.RetryCount = 0;
+            $scope.curPage = 0;
+            $scope.pageSize = 15;
+            $scope.RecipeBodyValues = [];
+            $scope.GetBCList();
+            $('.navbar').hide();
+        };
+
+        $scope.showAlert = function (a, b) {
+            $scope.isQuery = false;
+            $mdDialog.show(
+                      $mdDialog.alert()
+                        .parent(angular.element(document.querySelector('#popupContainer')))
+                        .clickOutsideToClose(true)
+                        .title(a)
+                        .textContent(b)
+                        .ariaLabel('Information')
+                        .ok('GOT IT!')
+                        //.targetEvent(ev)
+                    );
+        }
+
+        $scope.GetBCList = function () {
+
+            $http.get("@Url.Action("GetBCList", "BCRecipeBody")").success(function (response) {
+                if (response.Status == '200') {
+                    $scope.BCList = response.Message;
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
+            });
+        };
+
+        $scope.GetPPIDList = function () {
+            $scope.isQuery = true;
+            $http.post("@Url.Action("GetPPIDList", "BCRecipeBody")", { bcInfo: JSON.stringify($scope.bc), ppid: '' }).success(function (response) {
+                if (response.Status == '200') {
+                    $scope.PPIDList = response.Message;
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
+                $scope.isQuery = false;
+            });
+        };
+
+        $scope.GetEQPList = function () {
+            $scope.isQuery = true;
+            $http.post("@Url.Action("GetEQPList", "BCRecipeBody")", { bcInfo: JSON.stringify($scope.bc) }).success(function (response) {
+                if (response.Status == '200') {
+                    $scope.EQPList = response.Message;
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
+                $scope.isQuery = false;
+            });
+        };
+
+        $scope.CreateBCCmd = function () {
+
+            $.each($scope.ppid.RecipeTable, function (idx, val) {
+
+                if (val.NodeNo == $scope.eqp.NodeNo) {
+                    $scope.recipe = val;
+                }
+            });
+
+
+
+            $http.post("@Url.Action("CreateBCCmd", "BCRecipeBody")", { bcInfo: JSON.stringify($scope.bc), recipeInfo: JSON.stringify($scope.recipe) }).success(function (response) {
+                if (response.Status == '200') {
+                    $timeout(function () { $scope.GetIndex() }, 1000);
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
+            });
+        };
+
+        $scope.GetRecipeBodyValue = function () {
+            $http.post("@Url.Action("GetRecipeBodyValue", "BCRecipeBody")", { bcInfo: JSON.stringify($scope.bc), eqpInfo: JSON.stringify($scope.eqp), ed03Info: JSON.stringify($scope.ED03) }).success(function (response) {
+                if (response.Status == '200') {
+                    $scope.isQuery = false;
+                    $scope.RecipeBodyValues = response.Message;
+                    if ($scope.RecipeBodyValues.length == 0) {
+                        $scope.showAlert('Info', '沒有任何資料 \nNo data return');
+                    }
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
+            });
+        }
+
+        $scope.GetIndex = function () {
+            $http.post("@Url.Action("GetED03", "BCRecipeBody")", { bcInfo: JSON.stringify($scope.bc), eqpInfo: JSON.stringify($scope.eqp) }).success(function (response) {
+                if (response.Status == '200') {
+                    if ($scope.ED03.ReportType = '2' && $scope.ED03.Index != response.Message.Index) {
+                        $scope.ED03 = response.Message;
+                        $scope.GetRecipeBodyValue();
+                    } else {
+                        if ($scope.RetryCount >= 12) {
+                            $scope.RetryCount = 0;
+
+                            $scope.showAlert('Error', '機台回覆逾時 \nEquipment reply timeout');
+                        } else {
+                            $scope.RetryCount++;
+                            $timeout(function () { $scope.GetIndex() }, 1000);
+                        }
+                    }
+                } else {
+                    $scope.showAlert('Error', response.Message);
+
+                }
+                $scope.curPage = 0;
+
+            });
+        }
+
+        $scope.GetNewIndex = function () {
+            $scope.isQuery = true;
+            $http.post("@Url.Action("GetED03", "BCRecipeBody")", { bcInfo: JSON.stringify($scope.bc), eqpInfo: JSON.stringify($scope.eqp) }).success(function (response) {
+                if (response.Status == '200') {
+
+
+
+
+                    $scope.RetryCount = 0;
+                    $scope.ED03 = response.Message;
+                    $scope.CreateBCCmd();
+
+                } else {
+                    $scope.showAlert('Error', response.Message);
+
+                }
+                $scope.curPage = 0;
+
+            });
+        };
+
+        $scope.Query = function () {
+            $scope.isQuery = true;
+            $scope.GetNewIndex();
+        };
+
+        $scope.Export = function () {
+
+            alasql('SELECT * INTO XLS("export.xls",{headers:true}) FROM ?', [$scope.RecipeBodyValues]);
+        };
+        $scope.init();
+
+        $scope.numberOfPages = function () {
+            return Math.ceil($scope.RecipeBodyValues.length / $scope.pageSize);
+        };
+
+
+
+
+    });
+
+</script>
+
+<div class="row datepickerdemoBasicUsage" ng-app="History" ng-controller="Data">
+
+
+    <div class="col-md-10 col-md-offset-1" style="margin-top: 20px">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <h3 class="panel-title pull-left"><strong>Recipe Body Query</strong></h3>
+                <button class="btn-xs btn-default pull-right" ng-init="isQuery=false" ng-disabled="isQuery" ng-click="Query()">查詢</button>
+                <button class="btn-xs btn-default pull-right" ng-show="RecipeBodyValues" ng-click="Export()">匯出</button>
+
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <div class='form-group '>
+                            <label class='control-label'>BC名稱</label>
+                            <select class='form-control' ng-change="GetPPIDList();GetEQPList()" ng-model="bc" ng-options="each.BCName+' ('+each.BCIP.replace('172','x').replace('20','x')+')' for each in BCList">
+                                <option value="">-- 請選擇 --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class='form-group '>
+                            <label class='control-label'>PPID</label>
+                            <select class='form-control' ng-init="isQuery=false" ng-disabled="isQuery" ng-model="ppid" ng-options="each.Name for each in PPIDList">
+                                <option value="">-- 請選擇 --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class='form-group '>
+                            <label class='control-label'>SubEQP</label>
+                            <select class='form-control' ng-init="isQuery=false" ng-disabled="isQuery" ng-model="eqp" ng-options="each.EQPName + ' (' + each.Description + ')' for each in EQPList">
+                                <option value="">-- 請選擇 --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+                <fieldset>
+                    <legend>
+                        <div ng-init="isQuery=false" ng-show="isQuery">
+                            <md-progress-linear md-mode="query"></md-progress-linear>
+
+                        </div>
+                    </legend>
+
+                    <table class='table table-striped table-bordered'>
+                        <thead>
+                            <tr>
+
+                                <th>Name</th>
+                                <th>Value</th>
+                                <th>Unit</th>
+
+
+
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: small">
+                            <tr ng-repeat="eachRow in RecipeBodyValues | pagination: curPage * pageSize | limitTo: pageSize">
+
+                                <td>{{eachRow.Name}}</td>
+                                <td>{{eachRow.Value}}</td>
+                                <td>{{eachRow.Unit}}</td>
+
+
+
+
+                            </tr>
+
+                        </tbody>
+                    </table>
+                    <div class="pagination pagination-centered" ng-show="RecipeBodyValues.length">
+                        <ul class="pagination-controle pagination">
+                            <li>
+                                <button type="button" class="btn btn-primary" ng-disabled="curPage == 0"
+                                    ng-click="curPage=curPage-1">
+                                    &lt; PREV</button>
+                            </li>
+                            <li>
+                                <span>Page {{curPage + 1}} of {{ numberOfPages() }}</span>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-primary"
+                                    ng-disabled="curPage >= RecipeBodyValues.length/pageSize - 1"
+                                    ng-click="curPage = curPage+1">
+                                    NEXT &gt;</button>
+                            </li>
+
+                        </ul>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+

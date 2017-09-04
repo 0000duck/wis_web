@@ -1,0 +1,187 @@
+﻿<script src="~/Scripts/alasql.min.js"></script>
+<script src="~/Scripts/xlsx.core.min.js"></script>
+<style>
+    .paginationclass {
+        margin: 19px 28px;
+    }
+
+        .paginationclass span {
+            margin-left: 15px;
+            display: inline-block;
+        }
+
+    .pagination-controle li {
+        display: inline-block;
+    }
+
+    .pagination-controle button {
+        font-size: 12px;
+        margin-top: -26px;
+        cursor: pointer;
+    }
+
+    .pagination {
+        margin: 5px 12px !important;
+    }
+
+   
+</style>
+<script>
+    var InOutSite = angular.module('History', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+    angular.module('History').filter('pagination', function () {
+        return function (input, start) {
+            start = +start;
+            return input.slice(start);
+        };
+    });
+
+    InOutSite.controller('Data', function ($scope, $http, $filter) {
+        $scope.init = function () {
+            $scope.curPage = 0;
+            $scope.pageSize = 15;
+            $scope.hisResult = [];
+            $scope.GetBCList();
+            $('.navbar').hide();
+        };
+
+        
+        $scope.GetBCList = function () {
+            return $http.get("@Url.Action("GetBCList", "BCRecipeBody")").success(function (response) {
+                if (response.Status == '200') {
+                    $scope.BCList = response.Message;
+                } else {
+                    alert(response.Message);
+                }
+            });
+        };
+        $scope.Query = function () {
+            $scope.isQuery = true;
+            $http.post("@Url.Action("GetRecipeBody", "BCRecipeBody")", { bcName: $scope.bc.BCName, bcIP: $scope.bc.BCIP }).success(function (response) {
+                if (response.Status == '200') {
+                    $scope.hisResult = response.Message;
+
+                } else {
+                    alert(response.Message);
+                }
+                $scope.curPage = 0;
+                $scope.isQuery = false;
+            }).error(function (response) {
+                //alert(response);
+            });
+        };
+
+        $scope.Export = function () {
+
+            alasql('SELECT * INTO XLS("export.xls",{headers:true}) FROM ?', [$scope.hisResult]);
+        };
+        $scope.init();
+
+        $scope.numberOfPages = function () {
+            return Math.ceil($scope.hisResult.length / $scope.pageSize);
+        };
+
+        
+
+
+    });
+
+</script>
+
+<div class="row datepickerdemoBasicUsage" ng-app="History" ng-controller="Data">
+
+  
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <h3 class="panel-title pull-left"><strong>Recipe Body Config</strong></h3>
+                <button class="btn-xs btn-default pull-right" ng-init="isQuery=false" ng-disabled="isQuery" ng-click="Query()">查詢</button>
+                <button class="btn-xs btn-default pull-right" ng-show="hisResult" ng-click="Export()">匯出</button>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    
+                    <div class="col-md-6">
+                        <div class='form-group '>
+                            <label class='control-label'>BC名稱</label>
+                            <select class='form-control' ng-model="bc" ng-options="each.BCName+' ('+each.BCIP.replace('172','x').replace('20','x')+')' for each in BCList">                            
+                                <option value="">-- 請選擇 --</option>
+                            </select>
+                        </div>
+                    </div>
+                   
+                </div>
+
+                <fieldset>
+                    <legend></legend>
+
+                    <table class='table table-striped table-bordered'>
+                        <thead>
+                            <tr>
+
+                                <th>BCName</th>
+                                <th>SubeqID</th>
+                                <th>EqName</th>
+                                <th>RecipeSplit</th>
+                                <th>ItemName</th>
+                                <th>ItemFormat</th>
+                                <th>ItemOffset</th>
+                                <th>ItemLength</th>
+                                <th>ItemRate</th>
+                                <th>ItemEffLen</th>
+                                <th>ItemSigned</th>
+                                <th>ItemUnit</th>
+                               
+
+
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: small">
+                            <tr ng-repeat="eachRow in hisResult | pagination: curPage * pageSize | limitTo: pageSize">
+
+                                <td>{{eachRow.BCName}}</td>
+                                <td>{{eachRow.SubeqID}}</td>                        
+                                <td>{{eachRow.EqName}}</td>
+                                <td>{{eachRow.RecipeSplit}}</td>  
+                                <td>{{eachRow.ItemName}}</td>
+                                <td>{{eachRow.ItemFormat}}</td>
+                                <td>{{eachRow.ItemOffset}}</td>
+                                <td>{{eachRow.ItemLength}}</td>
+                                <td>{{eachRow.ItemRate}}</td>
+                                <td>{{eachRow.ItemEffLen}}</td>
+                                <td>{{eachRow.ItemSigned}}</td>
+                                <td>{{eachRow.ItemUnit}}</td>
+                               
+
+
+
+                            </tr>
+
+                        </tbody>
+                    </table>
+                    <div class="pagination pagination-centered" ng-show="hisResult.length">
+                        <ul class="pagination-controle pagination">
+                            <li>
+                                <button type="button" class="btn btn-primary" ng-disabled="curPage == 0"
+                                    ng-click="curPage=curPage-1">
+                                    &lt; PREV</button>
+                            </li>
+                            <li>
+                                <span>Page {{curPage + 1}} of {{ numberOfPages() }}</span>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-primary"
+                                    ng-disabled="curPage >= hisResult.length/pageSize - 1"
+                                    ng-click="curPage = curPage+1">
+                                    NEXT &gt;</button>
+                            </li>
+
+                        </ul>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+

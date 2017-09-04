@@ -1,0 +1,200 @@
+﻿<script src="~/Scripts/alasql.min.js"></script>
+<script src="~/Scripts/xlsx.core.min.js"></script>
+<style>
+    .paginationclass {
+        margin: 19px 28px;
+    }
+
+        .paginationclass span {
+            margin-left: 15px;
+            display: inline-block;
+        }
+
+    .pagination-controle li {
+        display: inline-block;
+    }
+
+    .pagination-controle button {
+        font-size: 12px;
+        margin-top: -26px;
+        cursor: pointer;
+    }
+
+    .pagination {
+        margin: 5px 12px !important;
+    }
+</style>
+<script>
+    var InOutSite = angular.module('History', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+    angular.module('History').filter('pagination', function () {
+        return function (input, start) {
+            start = +start;
+            return input.slice(start);
+        };
+    });
+
+    InOutSite.controller('Data', function ($scope, $http, $filter, $timeout, $mdDialog) {
+        $scope.init = function () {
+
+            $scope.curPage = 0;
+            $scope.pageSize = 15;
+            $scope.ConfigList = [];
+            $scope.GetProdList();
+            $('.navbar').hide();
+        };
+
+        $scope.showAlert = function (a, b) {
+            $scope.isQuery = false;
+            $mdDialog.show(
+                      $mdDialog.alert()
+                        .parent(angular.element(document.querySelector('#popupContainer')))
+                        .clickOutsideToClose(true)
+                        .title(a)
+                        .textContent(b)
+                        .ariaLabel('Information')
+                        .ok('GOT IT!')
+                        //.targetEvent(ev)
+                    );
+        }
+
+        $scope.GetProdList = function () {
+
+            $http.get("@Url.Action("GetConfigProd", "SPCY")").success(function (response) {
+                if (response.Status == '200') {
+                    $scope.ProdList = response.Message;
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
+            });
+        };
+
+
+
+        $scope.GetConfig = function () {
+            $http.post("@Url.Action("GetConfig", "SPCY")", { Step: '', Prod_ID: $scope.prod, Parameter: '' }).success(function (response) {
+                if (response.Status == '200') {
+                    $scope.isQuery = false;
+                    $scope.ConfigList = response.Message;
+                    if ($scope.ConfigList.length == 0) {
+                        $scope.showAlert('Info', '沒有任何資料 \nNo data return');
+                    }
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
+            });
+        }
+
+        $scope.Query = function () {
+            $scope.isQuery = true;
+            $scope.GetConfig();
+        };
+
+        $scope.Export = function () {
+
+            alasql('SELECT * INTO XLS("export.xls",{headers:true}) FROM ?', [$scope.ConfigList]);
+        };
+        $scope.init();
+
+        $scope.numberOfPages = function () {
+            return Math.ceil($scope.ConfigList.length / $scope.pageSize);
+        };
+
+
+
+
+    });
+
+</script>
+
+<div class="row datepickerdemoBasicUsage" ng-app="History" ng-controller="Data">
+
+
+    <div class="col-md-10 col-md-offset-1" style="margin-top: 20px">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <h3 class="panel-title pull-left"><strong>SPCY Config Query</strong></h3>
+                <button class="btn-xs btn-default pull-right" ng-init="isQuery=false" ng-disabled="isQuery" ng-click="Query()">查詢</button>
+                <button class="btn-xs btn-default pull-right" ng-show="ConfigList" ng-click="Export()">匯出</button>
+
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <div class='form-group '>
+                            <label class='control-label'>Product</label>
+                            <select class='form-control' ng-init="prod=''" ng-model="prod" ng-options="each for each in ProdList">
+                                <option value="">-- 請選擇 --</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <fieldset>
+                    <legend>
+                        <div ng-init="isQuery=false" ng-show="isQuery">
+                            <md-progress-linear md-mode="query"></md-progress-linear>
+
+                        </div>
+                    </legend>
+
+                    <table class='table table-striped table-bordered'>
+                        <thead>
+                            <tr>
+
+                                <th>Prod_ID</th>
+                                <th>Step_ID</th>
+                                <th>Parameter</th>
+                                <th>Upper_Spec</th>
+                                <th>Lower_Spec</th>
+                                <th>Hold_EQ</th>
+                                <th>Hold_Recipe</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: small">
+                            <tr ng-repeat="eachRow in ConfigList | pagination: curPage * pageSize | limitTo: pageSize">
+
+                                <td>{{eachRow.Prod_ID}}</td>
+                                <td>{{eachRow.Step_ID}}</td>
+                                <td>{{eachRow.Parameter}}</td>
+                                <td>{{eachRow.Upper_Spec}}</td>
+                                <td>{{eachRow.Lower_Spec}}</td>
+                                <td>{{eachRow.Hold_EQ}}</td>
+                                <td>{{eachRow.Hold_Recipe}}</td>
+
+
+                            </tr>
+
+                        </tbody>
+                    </table>
+                    <div class="pagination pagination-centered" ng-show="ConfigList.length">
+                        <ul class="pagination-controle pagination">
+                            <li>
+                                <button type="button" class="btn btn-primary" ng-disabled="curPage == 0"
+                                    ng-click="curPage=curPage-1">
+                                    &lt; PREV</button>
+                            </li>
+                            <li>
+                                <span>Page {{curPage + 1}} of {{ numberOfPages() }}</span>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-primary"
+                                    ng-disabled="curPage >= ConfigList.length/pageSize - 1"
+                                    ng-click="curPage = curPage+1">
+                                    NEXT &gt;</button>
+                            </li>
+
+                        </ul>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -332,7 +332,7 @@
                 <thead>
                     <tr>
                         <th>識別ID</th>
-                        <th>廠商名稱</th>
+                        <th>運輸車行</th>
                         <th>司機姓名</th>
                         <th>司機電話</th>
                         <th>車牌號碼</th>
@@ -368,7 +368,7 @@
 
             <div class='form-actions'>
                 <button class='btn btn-primary' type='submit' ng-click="showOK()">確定</button>
-                <button class='btn btn-warning' type='submit' ng-click="showCancel()">取消</button>
+                <button class='btn btn-danger' type='submit' ng-click="showCancel()">取消</button>
 
             </div>
 
@@ -424,9 +424,9 @@
                                     <td>{{vendor.CARID}}</td>
                                     <td>{{vendor.UPDATETIME}}</td>
                                     <td>
-                                        <button type="submit" class="btn btn-info" ng-click="ModifyData(vendor)">修改</button></td>
+                                        <button type="submit" class="btn btn-primary" ng-click="ModifyData(vendor)">修改</button></td>
                                     <td>
-                                        <button type="submit" class="btn btn-warning" ng-click="DelData(vendor)">刪除</button></td>
+                                        <button type="submit" class="btn btn-danger" ng-click="DelData(vendor)">刪除</button></td>
                                 </tr>
                             </tbody>
 

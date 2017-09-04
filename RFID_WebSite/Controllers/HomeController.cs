@@ -36,6 +36,54 @@ namespace RFID_WebSite.Controllers
             return compName.First();
         }
 
+        public JsonResult UpdateAntSetting(string eachSetting)
+        {
+            try
+            {
+                Structure.AntSetting infoObj = JsonConvert.DeserializeObject<Structure.AntSetting>(eachSetting);
+                RFID_WebSite.Models.GateInfoModel AntSettingData = new GateInfoModel();
+                AntSettingData.UpdateAntSetting(infoObj);
+
+                return Json("", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        public JsonResult GetAreaList(string Fab)
+        {
+            try
+            {
+                RFID_WebSite.Models.GateInfoModel AntSettingData = new GateInfoModel();
+                List<string> objs = AntSettingData.GetAreaList(Fab);
+
+                return Json(objs, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        public JsonResult GetAntSetting(string Fab,string Area)
+        {
+            try
+            {
+                RFID_WebSite.Models.GateInfoModel AntSettingData = new GateInfoModel();
+                List<Structure.AntSetting> objs = AntSettingData.GetAntSetting(Fab,Area);
+
+                return Json(objs, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
+
+        }
 
         public JsonResult GetAreaCount()
         {
@@ -64,6 +112,22 @@ namespace RFID_WebSite.Controllers
                 string objs = JsonConvert.SerializeObject(carDT, Formatting.Indented);
 
                 return Json(objs, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        public JsonResult GetShipTo(string carID)
+        {
+            try
+            {
+                RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
+                string shipTo = containerData.GetShipTo(carID);
+
+                return Json(shipTo, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -152,6 +216,61 @@ namespace RFID_WebSite.Controllers
 
 
         }
+
+        public JsonResult getSourceList()
+        {
+            try
+            {
+
+                RFID_WebSite.Models.VendorListModel ModelData = new VendorListModel();
+                DataTable DT = ModelData.GetSource();
+                string objs = JsonConvert.SerializeObject(DT, Formatting.Indented);
+
+                return Json(objs, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        public JsonResult DeleteSource(string input)
+        {
+            try
+            {
+
+                RFID_WebSite.Models.VendorListModel ModelData = new VendorListModel();
+
+                string objs = ModelData.DeleteSource(JsonConvert.DeserializeObject<Structure.Source>(input));
+
+                return Json(objs, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        public JsonResult UpdateSource(string input)
+        {
+            try
+            {
+
+                RFID_WebSite.Models.VendorListModel ModelData = new VendorListModel();
+                
+                string objs = ModelData.ModifySource(JsonConvert.DeserializeObject<Structure.Source>(input));
+
+                return Json(objs, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         //byEASY
         public JsonResult getVendorList()
         {
@@ -416,6 +535,24 @@ namespace RFID_WebSite.Controllers
 
         }
 
+        public JsonResult GetGateData(string FAB, string AREA,string GATE)
+        {
+            try
+            {
+                RFID_WebSite.Models.GateInfoModel GateData = new GateInfoModel();
+                Structure.RF_ANTCURRENT Gatainfo = new Structure.RF_ANTCURRENT();
+
+                Gatainfo = GateData.GetEachGate(FAB,AREA,GATE);
+
+                return Json(Gatainfo, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(e.StackTrace, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         public JsonResult GetGateStatus()
         {
             try
@@ -628,6 +765,14 @@ namespace RFID_WebSite.Controllers
             return View();
         }
         public ActionResult GateStatus()
+        {
+            return View();
+        }
+        public ActionResult RFAttenuation()
+        {
+            return View();
+        }
+        public ActionResult SourceList()
         {
             return View();
         }

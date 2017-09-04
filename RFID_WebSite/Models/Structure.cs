@@ -7,6 +7,18 @@ namespace RFID_WebSite.Models
 {
     public class Structure
     {
+        public class AntSetting
+        {
+            public string Fab = "";
+            public string Area = "";
+            public string Gate = "";
+            public string Type = "";
+            public string Value = "";
+            public string ReaderIP = "";
+            public string AntNumber = "";
+            public string UpdateTime = "";
+        }
+
         public class ResponseObj
         {
             public string status { get; set; }
@@ -42,6 +54,7 @@ namespace RFID_WebSite.Models
             public string driverName;
             public string driverPhone;
             public string reason;
+            public string source;
             public string VENDORID;  //訪客身分證
             public string VENDORCOUNT; //訪客人數
         }
@@ -77,6 +90,7 @@ namespace RFID_WebSite.Models
             public string driverName;
             public string driverPhone;
             public string reason;
+            public string source;
         }
 
         public class driverInfo
@@ -108,6 +122,12 @@ namespace RFID_WebSite.Models
         {
             public CarDetail carSet;
         
+        }
+
+        public class Source
+        {
+            public string ID;
+            public string NAME;
         }
 
         public class vendorManagement
@@ -207,6 +227,7 @@ namespace RFID_WebSite.Models
             public string SIGNAL_LIGHT { get; set; }     //三色燈狀態   
             public string MARQUEE { get; set; }          //字幕機狀態   
             public string UPDATETIME { get; set; }
+            public bool MANUALMODE { get; set; }
         }
         //byEASY
         public class RF_CONTAINERINFO

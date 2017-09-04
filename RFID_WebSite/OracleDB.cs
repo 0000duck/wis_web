@@ -10,10 +10,12 @@ namespace RFID_WebSite
     public class OracleDB
     {
         string db = "";
+        string ConnectionString = "";
         public OracleDB(string db)
         {
             this.db = db;
         }
+        
 
         public void ExcuteNoQuery(string sqlString)
         {
@@ -23,8 +25,14 @@ namespace RFID_WebSite
                 OracleConnection conn = new OracleConnection();
                 DataTable result = new DataTable();
 
-
-                conn.ConnectionString = System.Web.Configuration.WebConfigurationManager.ConnectionStrings[this.db].ConnectionString;
+                try
+                {
+                    conn.ConnectionString = System.Web.Configuration.WebConfigurationManager.ConnectionStrings[this.db].ConnectionString;
+                }
+                catch (Exception e1)
+                {
+                    conn.ConnectionString = this.db;
+                }
                 conn.Open();
 
 
@@ -52,8 +60,15 @@ namespace RFID_WebSite
             {
 
 
-
-                conn.ConnectionString = System.Web.Configuration.WebConfigurationManager.ConnectionStrings[this.db].ConnectionString;
+                try
+                {
+                    conn.ConnectionString = System.Web.Configuration.WebConfigurationManager.ConnectionStrings[this.db].ConnectionString;
+                }
+                catch (Exception e1)
+                {
+                    conn.ConnectionString = this.db;
+                }
+                
                 conn.Open();
 
 

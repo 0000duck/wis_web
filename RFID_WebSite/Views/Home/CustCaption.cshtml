@@ -52,7 +52,7 @@
 
         $scope.SaveCustCaption = function () {          
           
-            $http.post('http://10.56.195.180:8080/DISWebService/setcaption', { custCaptionList: JSON.stringify($scope.CustCaptionList) } ).success(function (response) {
+            $http.post('http://10.56.195.172:8080/DISWebService/setcaption', { custCaptionList: JSON.stringify($scope.CustCaptionList) } ).success(function (response) {
 
                 alert(response);
 

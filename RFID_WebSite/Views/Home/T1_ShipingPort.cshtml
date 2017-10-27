@@ -1,14 +1,32 @@
 ﻿<script>
-    var PierApp = angular.module('Pier', []);
-    PierApp.controller('piprctrl', function ($scope, $http, $interval,$timeout) {
+    var PierApp = angular.module('Pier', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+    PierApp.controller('piprctrl', function ($scope, $http, $interval, $timeout, $mdDialog) {
+
+        $scope.showAlert = function (a, b) {
+            $scope.isQuery = false;
+            $mdDialog.show(
+                $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#popupContainer')))
+                    .clickOutsideToClose(true)
+                    .title(a)
+                    .textContent(b)
+                    .ariaLabel('Information')
+                    .ok('GOT IT!')
+                //.targetEvent(ev)
+            );
+        }
 
         $scope.getGataInfo = function () {
 
             $http.post("@Url.Action("GateInfo", "Home")", { FAB: "T1", AREA: "Delivery" }).success(function (response) {
-                $scope.GateInfo = response;
-    
+                if (response.Status == '200') {
+                    $scope.GateInfo = response.Message;
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
             }).error(function (response) {
                 //alert(response);
+                $scope.showAlert('Error', response);
             });
         }
         $scope.getGataInfo();

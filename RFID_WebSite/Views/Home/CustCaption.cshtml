@@ -28,11 +28,25 @@
     var InOutSite = angular.module('CustCaption', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
 
 
-    InOutSite.controller('Data', function ($scope, $http, $filter) {
+    InOutSite.controller('Data', function ($scope, $http, $filter, $mdDialog) {
         $scope.init = function () {
 
             $scope.Query();
         };
+
+        $scope.showAlert = function (a, b) {
+            $scope.isQuery = false;
+            $mdDialog.show(
+                $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#popupContainer')))
+                    .clickOutsideToClose(true)
+                    .title(a)
+                    .textContent(b)
+                    .ariaLabel('Information')
+                    .ok('GOT IT!')
+                //.targetEvent(ev)
+            );
+        }
 
         $scope.ActiveModel = [{ name: 'T', desc: '開啟' },
                             { name: 'F', desc: '關閉' }];
@@ -40,12 +54,14 @@
         $scope.Query = function () {
 
             $http.post("@Url.Action("GetCustCaption", "Home")", {}).success(function (response) {
-
-                $scope.CustCaptionList = response;
-
+                if (response.Status == '200') {
+                    $scope.CustCaptionList = response.Message;
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
 
             }).error(function (response) {
-                //alert(response);
+                $scope.showAlert('Error', response);
             });
 
         };

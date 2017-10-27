@@ -35,7 +35,7 @@
         };
     });
 
-    InOutSite.controller('Data', function ($scope, $http, $filter) {
+    InOutSite.controller('Data', function ($scope, $http, $filter, $mdDialog) {
         $scope.init = function () {
             $scope.curPage = 0;
             $scope.pageSize = 15;
@@ -53,13 +53,29 @@
             $scope.Query();
         };
 
+        $scope.showAlert = function (a, b) {
+            $scope.isQuery = false;
+            $mdDialog.show(
+                $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#popupContainer')))
+                    .clickOutsideToClose(true)
+                    .title(a)
+                    .textContent(b)
+                    .ariaLabel('Information')
+                    .ok('GOT IT!')
+                //.targetEvent(ev)
+            );
+        }
+
         $scope.TypeModel = ['T1',
                              'T2'];
         $scope.GetContainerList = function (val) {
             return $http.get("@Url.Action("GetContainerList", "Home")").success(function (response) {
-
-                return response;
-
+                if (response.Status == '200') {
+                    return response.Message;
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
             });
         };
         $scope.Query = function () {
@@ -72,10 +88,15 @@
 
 
             $http.post("@Url.Action("GetContainerHistory", "Home")", { containerID: $scope.containerID, carID: $scope.carID, fab: $scope.fabType, start: queryStartTime, end: queryEndTime }).success(function (response) {
-                $scope.hisResult = response;
-                $scope.curPage = 0;
+                if (response.Status == '200') {
+                    $scope.hisResult = response.Message;
+                    $scope.curPage = 0;
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
             }).error(function (response) {
                 //alert(response);
+                $scope.showAlert('Error', response);
             });
         };
 

@@ -9,6 +9,63 @@ namespace RFID_WebSite.Models
 {
     public class ContainerModels
     {
+        public Structure.RF_TagMapping GetTagMappingByRealID(string RealID)
+        {
+            OracleDB dbObj = new OracleDB("RFID_DB");
+
+            string sqlString = @"select * from rf_tagmapping t where t.real_id = '" + RealID + "'";
+
+            DataTable result = dbObj.SelectSQL(sqlString);
+            List < Structure.RF_TagMapping> TagMappingList = Dt2List.ConvertDataTable<Structure.RF_TagMapping>(result);
+            if (TagMappingList.Count != 0)
+            {
+                return TagMappingList[0];
+            }
+            else
+            {
+                return new Structure.RF_TagMapping();
+            }
+        }
+
+        public Structure.RF_TagMapping GetTagMappingByTagID(string TagID)
+        {
+            OracleDB dbObj = new OracleDB("RFID_DB");
+
+            string sqlString = @"select * from rf_tagmapping t where t.tag_id = '" + TagID + "'";
+
+            DataTable result = dbObj.SelectSQL(sqlString);
+            List<Structure.RF_TagMapping> TagMappingList = Dt2List.ConvertDataTable<Structure.RF_TagMapping>(result);
+            if (TagMappingList.Count != 0)
+            {
+                return TagMappingList[0];
+            }
+            else
+            {
+                return new Structure.RF_TagMapping();
+            }
+        }
+
+        public void AddTagMapping(string RealID)
+        {
+            
+            OracleDB dbObj = new OracleDB("RFID_DB");
+            string sqlString = @"insert into rf_tagmapping t
+                                  (t.tag_id, t.real_id)
+                                values
+                                  ('INXCAR' || LPAD(emp_sequence.NEXTVAL, 5, '0'), '" + RealID + "')";
+            dbObj.ExcuteNoQuery(sqlString);
+           
+        }
+
+        public void DeleteTagMapping(string TagID)
+        {
+
+            OracleDB dbObj = new OracleDB("RFID_DB");
+            string sqlString = @"delete rf_tagmapping t where t.tag_id='"+TagID+"'";
+            dbObj.ExcuteNoQuery(sqlString);
+
+        }
+
         public Structure.areaCount GetAreaCount()
         {
             Structure.areaCount areaCountObject = new Structure.areaCount();

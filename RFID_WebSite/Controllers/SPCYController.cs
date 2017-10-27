@@ -22,6 +22,11 @@ namespace RFID_WebSite.Controllers
             return View();
         }
 
+        public ActionResult Info()
+        {
+            return View();
+        }
+
         public JsonResult GetConfigProd()
         {
             try

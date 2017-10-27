@@ -26,8 +26,8 @@
     }
 
     .tooltip-inner {
-    white-space:pre-wrap;
-}
+        white-space: pre-wrap;
+    }
 </style>
 <script>
     var InOutSite = angular.module('History', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache', 'ngMaterialDatePicker']);
@@ -90,6 +90,7 @@
                     );
         }
 
+
         $scope.GetProdList = function () {
 
             $http.get("@Url.Action("GetErrorLogProd", "SPCY")").success(function (response) {
@@ -104,7 +105,7 @@
 
 
         $scope.GetErrorLog = function () {
-            
+
             var queryStartTime = moment($scope.dateTimeStart).format('YYYY-MM-DD HH:mm:ss');
             var queryEndTime = moment($scope.dateTimeEnd).format('YYYY-MM-DD HH:mm:ss');
             if ($scope.dateTimeStart == undefined || $scope.dateTimeEnd == undefined) {
@@ -140,9 +141,39 @@
             return Math.ceil($scope.LogList.length / $scope.pageSize);
         };
 
+        $scope.showInfo = function (ev, data) {
+            $mdDialog.show({
+                locals: { dataToPass: data },
+                controller: DialogController,
+                templateUrl: '@Url.Action("Info", "SPCY")',
+                //parent: angular.element(document.querySelector('.panel-body')),
+                targetEvent: ev,
+                clickOutsideToClose: true,
+                fullscreen: true // Only for -xs, -sm breakpoints.
+            })
+            .then(function (answer) {
+                $scope.status = 'You said the information was "' + answer + '".';
+            }, function () {
+                $scope.status = 'You cancelled the dialog.';
+            });
+        };
 
 
 
+        function DialogController($scope, $mdDialog, dataToPass) {
+            $scope.dataToPass = dataToPass;
+            $scope.hide = function () {
+                $mdDialog.hide();
+            };
+
+            $scope.cancel = function () {
+                $mdDialog.cancel();
+            };
+
+            $scope.answer = function (answer) {
+                $mdDialog.hide(answer);
+            };
+        }
     });
 
 </script>
@@ -171,54 +202,29 @@
                             </select>
                         </div>
                     </div>
+
+
                     <div class="col-md-3">
-                    <md-input-container class="md-input-has-placeholder">
+                        <md-input-container class="md-input-has-placeholder">
                                                 <label>Start Date/Time</label>
                                                 <input mdc-datetime-picker="" date="true" time="true" type="text" placeholder="Date"  format="YYYY-MM-DD HH:mm:ss" ng-model="dateTimeStart" class=" md-input" readonly="readonly" id="input_0">
                                                 <div class="md-errors-spacer"></div>
                                             </md-input-container>
-                        </div>
+                    </div>
                     <div class="col-md-3">
-                    <md-input-container class="md-input-has-placeholder">
+                        <md-input-container class="md-input-has-placeholder">
                                                 <label>End Date/Time</label>
                                                 <input mdc-datetime-picker="" date="true" time="true" type="text" placeholder="Date" format="YYYY-MM-DD HH:mm:ss" ng-model="dateTimeEnd" class=" md-input" readonly="readonly" id="input_1">
                                                 <div class="md-errors-spacer"></div>
                                             </md-input-container>
-                          </div>
-                    @* <div class="col-md-3">
-                        <div class='form-group '>
-                            <label class='control-label'>開始</label>
-
-                            <md-datepicker ng-model="minDate" md-placeholder="Enter date"></md-datepicker>
-
-                        </div>
                     </div>
-                    <div class="col-md-1">
-                        <div class='form-group '>
-                            <label class='control-label'>時間</label>
-                            <select class='form-control' ng-init="startHour = HoursModel[0]" ng-model="startHour" ng-options="eachHours for eachHours in HoursModel">
-                                <option value=""></option>
-
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <div class='form-group'>
-                            <label class='control-label'>結束</label>
-                            <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker>
-                        </div>
-                    </div>
-                    <div class="col-md-1">
-                        <div class='form-group '>
-                            <label class='control-label'>時間</label>
-                            <select class='form-control' ng-init="endHour = HoursModel[0]" ng-model="endHour" ng-options="eachHours for eachHours in HoursModel">
-                                <option value=""></option>
-
-                            </select>
-                        </div>
-                    </div>*@
+                    <label class="col-md-3">
+                        <label class="checkbox">
+                            Hide Error
+                        </label>
+                        <md-checkbox ng-init="OnlySuccess=false" ng-model="OnlySuccess">
                 </div>
+
 
                 <fieldset>
                     <legend>
@@ -228,14 +234,15 @@
                         </div>
                     </legend>
 
-                    <table class='table table-striped table-bordered'>
+                    <table class='table table-striped table-bordered table-hover'>
                         <thead>
                             <tr>
-                                <th>Prod</th> 
-                                <th>ChartID</th>
+                                <th>Lot_Type</th>
+                                <th>Prod</th>
+
                                 <th>Parameter</th>
                                 <th>Pre_Step</th>
-                                <th>Lot_Type</th>
+
                                 <th>Recipe_ID</th>
                                 <th>Error_Msg</th>
                                 <th>TimeStamp</th>
@@ -244,20 +251,13 @@
                             </tr>
                         </thead>
                         <tbody style="font-size: small">
-                            <tr ng-repeat="eachRow in LogList | pagination: curPage * pageSize | limitTo: pageSize" title="EqpID:{{eachRow.EqpID}}
-SampleID:{{eachRow.SampleID}}
-SampleDate:{{eachRow.SampleDate}}
-MeanValue:{{eachRow.MeanValue}}
-MinValue:{{eachRow.MinValue}}
-MaxValue:{{eachRow.MaxValue}}
-Process_EQ:{{eachRow.Process_EQ}}
-GLASS:{{eachRow.GLASS}}" bs-tooltip>
-                                
-                                <td>{{eachRow.Prod_ID}}</td>
-                                <td>{{eachRow.ChartID}}</td>
-                                <td>{{eachRow.Parameter}}</td>                               
-                                <td>{{eachRow.Process_Step}}</td>
+                            <tr ng-repeat="eachRow in LogList | filter:{ Error_Msg : '' }:OnlySuccess | pagination: curPage * pageSize | limitTo: pageSize" ng-click="showInfo($event,eachRow)">
                                 <td>{{eachRow.Lot_Type}}</td>
+                                <td>{{eachRow.Prod_ID}}</td>
+
+                                <td>{{eachRow.Parameter}}</td>
+                                <td>{{eachRow.Process_Step}}</td>
+
                                 <td>{{eachRow.Recipe_ID}}</td>
                                 <td>{{eachRow.Error_Msg}}</td>
                                 <td>{{eachRow.TimeStamp}}</td>
@@ -290,5 +290,6 @@ GLASS:{{eachRow.GLASS}}" bs-tooltip>
             </div>
         </div>
     </div>
+</div>
 </div>
 

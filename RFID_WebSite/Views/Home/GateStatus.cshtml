@@ -2,7 +2,7 @@
     var InOutSite = angular.module('GateStatus', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
 
 
-    InOutSite.controller('Data', function ($scope, $http, $filter, $interval) {
+    InOutSite.controller('Data', function ($scope, $http, $filter, $interval, $mdDialog) {
         $scope.CarTypeModel = [
                         { name: 'C', desc: '貨櫃' },
                         { name: 'T', desc: '貨車' }
@@ -16,17 +16,32 @@
             $scope.Query();
         };
 
-
+        $scope.showAlert = function (a, b) {
+            $scope.isQuery = false;
+            $mdDialog.show(
+                $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#popupContainer')))
+                    .clickOutsideToClose(true)
+                    .title(a)
+                    .textContent(b)
+                    .ariaLabel('Information')
+                    .ok('GOT IT!')
+                //.targetEvent(ev)
+            );
+        }
 
         $scope.Query = function () {
 
             $http.post("@Url.Action("GetGateStatus", "Home")", {}).success(function (response) {
-
-                $scope.gateListModel = response;
-
+                if (response.Status == '200') {
+                    $scope.gateListModel = response.Message;
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
 
             }).error(function (response) {
                 //alert(response);
+                $scope.showAlert('Error', response);
             });
 
         };
@@ -44,36 +59,40 @@
         $scope.binding = function () {
 
             $http.post("@Url.Action("GetGateData", "Home")", { FAB: $scope.Fab, AREA: $scope.Area, GATE: $scope.Gate }).success(function (response) {
+                if (response.Status == '200') {
+                    if (response.CONTAINER_ID != undefined) {
+                        if (response.CONTAINER_ID == "") {
+                            var GateJson = {
+                                Fab: $scope.Fab,
+                                Area: $scope.Area,
+                                Gate: $scope.Gate,
+                                Command: 'BindContainer',
+                                Content: $scope.CarType.name + ',' + $scope.CarID.toUpperCase(),
+                                ReaderIP: $scope.ReaderIP
+                            }
 
-                if (response.CONTAINER_ID != undefined) {
-                    if (response.CONTAINER_ID == "") {
-                        var GateJson = {
-                            Fab: $scope.Fab,
-                            Area: $scope.Area,
-                            Gate: $scope.Gate,
-                            Command: 'BindContainer',
-                            Content: $scope.CarType.name + ',' + $scope.CarID.toUpperCase(),
-                            ReaderIP: $scope.ReaderIP
+                            $http.post('http://10.56.195.172:8080/DISWebService/setGate', { setGateBind: JSON.stringify(GateJson) }).success(function (response) {
+
+                                alert(response);
+                                $scope.Query();
+                                $scope.isInfoShow = false;
+
+                            }).error(function (response) {
+                                alert(response);
+                            });
+                        } else {
+                            alert("這個碼頭已經綁定車輛了");
                         }
-
-                        $http.post('http://10.56.195.172:8080/DISWebService/setGate', { setGateBind: JSON.stringify(GateJson) }).success(function (response) {
-
-                            alert(response);
-                            $scope.Query();
-                            $scope.isInfoShow = false;
-
-                        }).error(function (response) {
-                            alert(response);
-                        });
                     } else {
-                        alert("這個碼頭已經綁定車輛了");
-                    }
-                } else {
 
                     alert("CONTAINER_ID is undefined");
+                    }
+                } else {
+                    $scope.showAlert('Error', response.Message);
                 }
             }).error(function (response) {
                 //alert(response);
+                $scope.showAlert('Error', response);
             });
 
 
@@ -132,13 +151,16 @@
                 <tbody>
                     <tr>
 
-                        <td>{{Fab}}
+                        <td>
+                            {{Fab}}
                         </td>
 
-                        <td>{{Area}}
+                        <td>
+                            {{Area}}
                         </td>
 
-                        <td>{{Gate}}
+                        <td>
+                            {{Gate}}
                         </td>
 
                         <td>
@@ -149,8 +171,7 @@
 
                             <div class='form-group'>
 
-                                <select class="form-control" ng-model="CarType" ng-init="CarType=CarTypeModel[0]" ng-options="each.desc for each in CarTypeModel">
-                                </select>
+                                <select class="form-control" ng-model="CarType" ng-init="CarType=CarTypeModel[0]" ng-options="each.desc for each in CarTypeModel"></select>
                             </div>
 
                         </td>
@@ -180,8 +201,7 @@
                     <div class="col-md-2">
                         <div class='form-group '>
                             <label class='control-label'>廠區</label>
-                            <select class='form-control' ng-model="fabType" ng-options="eachType for eachType in TypeModel" ng-init="fabType = TypeModel[0]">
-                            </select>
+                            <select class='form-control' ng-model="fabType" ng-options="eachType for eachType in TypeModel" ng-init="fabType = TypeModel[0]"></select>
                         </div>
                     </div>
                 </div>
@@ -209,9 +229,11 @@
                                     <td>{{each.CAR_TYPE.replace("C", "貨櫃").replace("T", "貨車")}}</td>
                                     <td>{{each.UPDATETIME}}</td>
                                     <td>
-                                        <button type="submit" class="btn-xs btn-success" ng-hide="each.CONTAINER_ID!=''" ng-click="showBinding(each)">綁定車輛</button></td>
+                                        <button type="submit" class="btn-xs btn-success" ng-hide="each.CONTAINER_ID!=''" ng-click="showBinding(each)">綁定車輛</button>
+                                    </td>
                                     <td>
-                                        <button type="submit" class="btn-xs btn-danger" ng-hide="each.CONTAINER_ID=='' || !each.MANUALMODE" ng-click="unbind(each)">解除綁定</button></td>
+                                        <button type="submit" class="btn-xs btn-danger" ng-hide="each.CONTAINER_ID=='' || !each.MANUALMODE" ng-click="unbind(each)">解除綁定</button>
+                                    </td>
                                 </tr>
                             </tbody>
 

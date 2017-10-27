@@ -7,6 +7,12 @@ namespace RFID_WebSite.Models
 {
     public class Structure
     {
+        public class RF_TagMapping
+        {
+            public string Tag_ID { get; set; }
+            public string Real_ID { get; set; }
+        }
+
         public class AntSetting
         {
             public string Fab = "";

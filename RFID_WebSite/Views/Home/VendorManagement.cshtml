@@ -102,13 +102,14 @@
 
 
             $http.post("@Url.Action("ImportVendorData", "Home")", { jsonObj: JSON.stringify(vm.items) }).success(function (response) {
-                if (response != 'OK') {
-                    //alert('錯誤訊息:' + response);
-                    $scope.showAlert('Information', '錯誤訊息:' + response);
-                } else {
+                if (response.Status == '200') {
                     //alert('匯入成功');
-                    $scope.showAlert('Information','匯入成功');
+                    $scope.showAlert('Information', '匯入成功');
                     $scope.getVendorList();
+                } else {
+                    
+                    //alert('錯誤訊息:' + response);
+                    $scope.showAlert('Error', response.Message);
                 }
             }).error(function (response) {
                 //alert('錯誤訊息:' + response);
@@ -152,12 +153,14 @@
         $scope.getVendorList = function () {
 
             $http.post("@Url.Action("getVendorList", "Home")", {}).success(function (response) {
-
-                var data = JSON.parse(response);
-                $scope.vendorListModel = data;
-
+                if (response.Status == '200') {
+                    var data = JSON.parse(response.Message);
+                    $scope.vendorListModel = data;
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
             }).error(function (response) {
-                alert(response);
+                $scope.showAlert('Error', response);
             });
         };
 
@@ -168,20 +171,23 @@
         $scope.getVendorSearch = function () {
             if ($scope.keyValue != '') {
                 $http.post("@Url.Action("getVendorOnly", "Home")", { key: $scope.keyValue.toUpperCase() }).success(function (response) {
-
-                var data = JSON.parse(response);
-                if (data.length > 0) {
-                    $scope.vendorListModel = data;
-                    $scope.curPage = 0;
-                } else {
-                    $scope.getVendorList();
-                    //alert("查無資料");
-                    $scope.showAlert('Information', '查無資料');
-                }
-            }).error(function (response) {
-                alert(response);
-            });
-        } else { $scope.getVendorList(); }
+                    if (response.Status == '200') {
+                        var data = JSON.parse(response.Message);
+                        if (data.length > 0) {
+                            $scope.vendorListModel = data;
+                            $scope.curPage = 0;
+                        } else {
+                            $scope.getVendorList();
+                            //alert("查無資料");
+                            $scope.showAlert('Information', '查無資料');
+                        }
+                    } else {
+                        $scope.showAlert('Error', response.Message);
+                    }
+                }).error(function (response) {
+                    $scope.showAlert('Error', response);
+                });
+            } else { $scope.getVendorList(); }
 
         };
 
@@ -215,18 +221,20 @@
                 }
 
                 $http.post("@Url.Action("ModifyVendorData", "Home")", { jsonObj: JSON.stringify(jsonStr) }).success(function (response) {
-
-                    //alert("修改成功");
-                    $scope.showAlert('Information', '修改成功');
-                    $scope.showVENDORID = '';
-                    $scope.showVENDORNAME = '';
-                    $scope.showDRIVERNAME = '';
-                    $scope.showDRIVERPHONE = '';
-                    $scope.showUPDATETIME = '';
-                    $scope.getVendorSearch();
-
+                    if (response.Status == '200') {
+                        //alert("修改成功");
+                        $scope.showAlert('Information', '修改成功');
+                        $scope.showVENDORID = '';
+                        $scope.showVENDORNAME = '';
+                        $scope.showDRIVERNAME = '';
+                        $scope.showDRIVERPHONE = '';
+                        $scope.showUPDATETIME = '';
+                        $scope.getVendorSearch();
+                    } else {
+                        $scope.showAlert('Error', response.Message);
+                    }
                 }).error(function (response) {
-                    alert(response);
+                    $scope.showAlert('Error', response);
                 });
             }
 
@@ -251,18 +259,21 @@
 
 
         $scope.DelData = function (Vendor) {
-
+           
             $http.post("@Url.Action("DeleteVendorData", "Home")", { jsonObj: JSON.stringify(Vendor) }).success(function (response) {
-
-                if ($scope.keyValue != null) {
-                    $scope.getVendorSearch();
+                if (response.Status == '200') {
+                    if ($scope.keyValue != null) {
+                        $scope.getVendorSearch();
+                    } else {
+                        $scope.getVendorList();
+                    }
+                    //alert("刪除成功");
+                    $scope.showAlert('Information', '刪除成功');
                 } else {
-                    $scope.getVendorList();
+                    $scope.showAlert('Error', response.Message);
                 }
-                //alert("刪除成功");
-                $scope.showAlert('Information', '刪除成功');
             }).error(function (response) {
-                alert(response);
+                $scope.showAlert('Error', response);
             });
 
         }

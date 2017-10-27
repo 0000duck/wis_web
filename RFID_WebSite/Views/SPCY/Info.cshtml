@@ -1,0 +1,92 @@
+﻿@{
+    Layout = null;
+}
+<md-dialog aria-label="Details">
+  <form ng-cloak>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Details</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()">
+          <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+      <div class="md-dialog-content">
+         
+                  <dl>
+          <dt>EqpID</dt>
+          <dd>{{dataToPass.EqpID}}</dd>
+        </dl>
+                  <dl>
+          <dt>ChartID</dt>
+          <dd>{{dataToPass.ChartID}}</dd>
+        </dl>
+                  <dl>
+          <dt>SampleID</dt>
+          <dd>{{dataToPass.SampleID}}</dd>
+        </dl>
+                  <dl>
+          <dt>SampleDate</dt>
+          <dd>{{dataToPass.SampleDate}}</dd>
+        </dl>
+                  <dl>
+          <dt>Parameter</dt>
+          <dd>{{dataToPass.Parameter}}</dd>
+        </dl>
+             
+                  <dl>
+          <dt>MeanValue</dt>
+          <dd>{{dataToPass.MeanValue}}</dd>
+        </dl>
+                  <dl>
+          <dt>MaxValue</dt>
+          <dd>{{dataToPass.MaxValue}}</dd>
+        </dl>
+                  <dl>
+          <dt>MinValue</dt>
+          <dd>{{dataToPass.MinValue}}</dd>
+        </dl>
+                  <dl>
+                  <dt>Process_Step</dt>
+          <dd>{{dataToPass.Process_Step}}</dd>
+        </dl>
+                  <dl>
+          <dt>Process_EQ</dt>
+          <dd>{{dataToPass.Process_EQ}}</dd>
+        </dl>
+                  <dl>
+                  <dt>Recipe_ID</dt>
+          <dd>{{dataToPass.Recipe_ID}}</dd>
+        </dl>
+                  <dl>
+          <dt>Lot_Type</dt>
+          <dd>{{dataToPass.Lot_Type}}</dd>
+        </dl>
+                  <dl>
+                  <dt>Prod_ID</dt>
+          <dd>{{dataToPass.Prod_ID}}</dd>
+        </dl>
+                  <dl>
+          <dt>GLASS</dt>
+          <dd>{{dataToPass.GLASS}}</dd>
+        </dl>
+                  <dl>
+                  <dt>Error_Msg</dt>
+          <dd>{{dataToPass.Error_Msg}}</dd>
+        </dl>
+                  <dl>
+          <dt>TimeStamp</dt>
+          <dd>{{dataToPass.TimeStamp}}</dd>
+       
+ </div>
+            
+    
+      </div>
+    </md-dialog-content>
+
+    
+  </form>
+</md-dialog>

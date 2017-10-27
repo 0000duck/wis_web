@@ -24,6 +24,8 @@
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
+    <Use64BitIISExpress />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -192,6 +194,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BCRecipeBodyController.cs" />
+    <Compile Include="Controllers\CylinderController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SPCYController.cs" />
     <Compile Include="Global.asax.cs">
@@ -199,6 +202,8 @@
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\BCModels.cs" />
+    <Compile Include="Models\CylinderModels.cs" />
+    <Compile Include="Models\Dt2List.cs" />
     <Compile Include="Models\ResponseContent.cs" />
     <Compile Include="Models\GateInfoModel.cs" />
     <Compile Include="Models\ContainerModels.cs" />
@@ -322,6 +327,8 @@
     <Content Include="Scripts\jquery-ui.js" />
     <Content Include="Scripts\jquery.contextMenu.min.js" />
     <Content Include="Scripts\jquery.js" />
+    <Content Include="Scripts\jquery.signalR-2.1.2.js" />
+    <Content Include="Scripts\jquery.signalR-2.1.2.min.js" />
     <Content Include="Scripts\jquery.signalR-2.2.1.js" />
     <Content Include="Scripts\jszip.js" />
     <Content Include="Scripts\knockout-2.1.0.debug.js" />
@@ -336,6 +343,7 @@
     <Content Include="Scripts\xlsx-reader.js" />
     <Content Include="Scripts\xlsx.core.min.js" />
     <Content Include="Scripts\xlsx.js" />
+    <Content Include="Scripts\_references.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -346,7 +354,6 @@
       <DependentUpon>Web.config</DependentUpon>
     </Content>
     <Content Include="Content\Site.css" />
-    <Content Include="Scripts\_references.js" />
     <Content Include="Images\accent.png" />
     <Content Include="Images\heroAccent.png" />
     <Content Include="Images\orderedList0.png" />
@@ -373,12 +380,6 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\angular.min.js.map" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Home\WriteTag.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Views\Home\About.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -393,9 +394,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Home\Data.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Scripts\jquery.contextMenu.min.js.map" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\jquery.contextMenu.min.css.map" />
@@ -437,10 +435,6 @@
     <Content Include="Views\Home\VendorManagement.cshtml" />
     <Content Include="Views\Home\WriteTagGo.cshtml" />
     <Content Include="Views\Home\TagHandle.cshtml" />
-    <Content Include="Scripts\angular-animate.min.js.map" />
-    <Content Include="Scripts\angular-aria.min.js.map" />
-    <Content Include="Scripts\angular-messages.min.js.map" />
-    <Content Include="Scripts\angular-route.min.js.map" />
     <Content Include="Views\Home\TagHistory.cshtml" />
     <Content Include="Views\Home\SearchTagHistory.cshtml" />
     <Content Include="Views\Home\CustCaption.cshtml" />
@@ -451,7 +445,15 @@
     <Content Include="Views\BCRecipeBody\Query.cshtml" />
     <Content Include="Views\SPCY\Config.cshtml" />
     <Content Include="Views\SPCY\ErrorLog.cshtml" />
+    <Content Include="Views\Cylinder\Status.cshtml" />
+    <Content Include="Scripts\angular-animate.min.js.map" />
+    <Content Include="Scripts\angular-aria.min.js.map" />
     <Content Include="Scripts\angular-material-datetimepicker.js.map" />
+    <Content Include="Scripts\angular-messages.min.js.map" />
+    <Content Include="Scripts\angular-route.min.js.map" />
+    <Content Include="Scripts\angular.min.js.map" />
+    <Content Include="Scripts\jquery.contextMenu.min.js.map" />
+    <Content Include="Views\SPCY\Info.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

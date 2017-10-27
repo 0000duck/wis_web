@@ -200,8 +200,22 @@
 </style>
 
 <script>
-    var Layout = angular.module('Layout', []);
-    Layout.controller('Layout', function ($scope, $http, $interval) {
+    var Layout = angular.module('Layout', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+    Layout.controller('Layout', function ($scope, $http, $interval, $mdDialog) {
+
+        $scope.showAlert = function (a, b) {
+            $scope.isQuery = false;
+            $mdDialog.show(
+                $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#popupContainer')))
+                    .clickOutsideToClose(true)
+                    .title(a)
+                    .textContent(b)
+                    .ariaLabel('Information')
+                    .ok('GOT IT!')
+                //.targetEvent(ev)
+            );
+        }
 
         $scope.init = function () {
             $('.dragToolBox').draggable();
@@ -292,12 +306,16 @@
 
         $scope.getLayout = function (name) {
             $http.post("@Url.Action("GetLayout", "Home")", { Name: $scope.LayoutName }).success(function (response) {
-                $.each(response, function (index, d) {
+                if (response.Status == '200') {
+                    $.each(response.Message, function (index, d) {
                     // if already have elements, remove all
                     $('#' + d.id).remove();
                     printElementForEdit(d.id, d.height, d.width, d.top, d.left, d.caption, d.zIndex, d.type);
 
-                });
+                    });
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
             }).error(function (response) {
                 //alert(response);
             });
@@ -343,17 +361,17 @@
                 });
             });
             $http.post("@Url.Action("SaveLayout", "Home")", { Name: $scope.LayoutName, listObject: JSON.stringify(listObject) }).success(function (response) {
-                if (response.status == 'ERROR') {
-                    alert(response.detail);
-
+                if (response.Status == '200') {
+                    //alert(response.detail);
+                    $scope.showAlert('Info', response.Message);
                 } else {
                     //resetTimeout();
-                    alert(response.status);
+                    $scope.showAlert('Error', response.Message);
                     $scope.ShowSelectMode = false;
                     $scope.edit = false;
                 }
             }).error(function (response) {
-                alert(response);
+                $scope.showAlert('Error', response);
             });
 
         };
@@ -501,25 +519,30 @@
     };
         $scope.getAreaCount = function () {
             $http.post("@Url.Action("GetAreaCount", "Home")", {}).success(function (response) {
-                //T1
-                $scope.T1_WH = response.T1_WH;
-                $scope.T1_Delivery = response.T1_Delivery;
-                $scope.T1_Receive = response.T1_Receive;
-                $scope.T1_SB = response.T1_SB;
-                $scope.T1_Parking = response.T1_Parking;
+                if (response.Status == '200') {
+                    //T1
+                    $scope.T1_WH = response.Message.T1_WH;
+                    $scope.T1_Delivery = response.Message.T1_Delivery;
+                    $scope.T1_Receive = response.Message.T1_Receive;
+                    $scope.T1_SB = response.Message.T1_SB;
+                    $scope.T1_Parking = response.Message.T1_Parking;
 
-                //T2
-                $scope.T2_WH = response.T2_WH;
-                $scope.T2_Delivery = response.T2_Delivery;
-                $scope.T2_Receive = response.T2_Receive;
-                $scope.T2_SB = response.T2_SB;
-                $scope.T2_Center = response.T2_Center;
-                //Total
-                $scope.Total_Truck = response.Total.Guest;
-                $scope.Total_BigTruck = response.Total.Truck//byEASY
-                $scope.Total_Container = response.Total.Container;
-                //$scope.$apply();
+                    //T2
+                    $scope.T2_WH = response.Message.T2_WH;
+                    $scope.T2_Delivery = response.Message.T2_Delivery;
+                    $scope.T2_Receive = response.Message.T2_Receive;
+                    $scope.T2_SB = response.Message.T2_SB;
+                    $scope.T2_Center = response.Message.T2_Center;
+                    //Total
+                    $scope.Total_Truck = response.Message.Total.Guest;
+                    $scope.Total_BigTruck = response.Message.Total.Truck//byEASY
+                    $scope.Total_Container = response.Message.Total.Container;
+                    //$scope.$apply();
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
             }).error(function (response) {
+                $scope.showAlert('Error', response);
                 //alert(response);
             });
         }

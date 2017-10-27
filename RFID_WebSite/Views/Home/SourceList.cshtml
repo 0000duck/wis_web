@@ -37,9 +37,9 @@
 
     VendorListApp.controller('vendorListCtl', function ($scope, $http, $mdDialog) {
 
-        
 
-        
+
+
 
         $scope.showAlert = function (a,b) {
             $mdDialog.show(
@@ -62,7 +62,7 @@
             $scope.vendorListModel = [];
             $scope.getVendorList();
         }
-        
+
 
         $scope.$watch('keyValue', function (newValue, oldValue) {
             if (newValue = '') { $scope.getVendorList(); }
@@ -72,12 +72,14 @@
         $scope.getVendorList = function () {
 
             $http.post("@Url.Action("GetSourceList", "Home")", {}).success(function (response) {
-
-                var data = JSON.parse(response);
-                $scope.vendorListModel = data;
-
+                if (response.Status == '200') {
+                    var data = JSON.parse(response.Message);
+                    $scope.vendorListModel = data;
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
             }).error(function (response) {
-                alert(response);
+                $scope.showAlert('Error', response);
             });
         };
 
@@ -88,20 +90,23 @@
         $scope.getVendorSearch = function () {
             if ($scope.keyValue != '') {
                 $http.post("@Url.Action("getVendorOnly", "Home")", { key: $scope.keyValue.toUpperCase() }).success(function (response) {
-
-                var data = JSON.parse(response);
-                if (data.length > 0) {
-                    $scope.vendorListModel = data;
-                    $scope.curPage = 0;
-                } else {
-                    $scope.getVendorList();
-                    //alert("查無資料");
-                    $scope.showAlert('Information', '查無資料');
-                }
-            }).error(function (response) {
-                alert(response);
-            });
-        } else { $scope.getVendorList(); }
+                    if (response.Status == '200') {
+                        var data = JSON.parse(response.Message);
+                        if (data.length > 0) {
+                            $scope.vendorListModel = data;
+                            $scope.curPage = 0;
+                        } else {
+                            $scope.getVendorList();
+                            //alert("查無資料");
+                            $scope.showAlert('Information', '查無資料');
+                        }
+                    } else {
+                        $scope.showAlert('Error', response.Message);
+                    }
+                }).error(function (response) {
+                    $scope.showAlert('Error', response);
+                });
+            } else { $scope.getVendorList(); }
 
         };
 
@@ -125,17 +130,20 @@
                     ID: $scope.showVENDORID.toUpperCase(),
                     NAME: $scope.showVENDORNAME.toUpperCase(),
                 };
-               
+
 
                 $http.post("@Url.Action("UpdateSource", "Home")", { input: JSON.stringify(jsonStr) }).success(function (response) {
-
-                    //alert("修改成功");
-                    $scope.showAlert('Information', '修改成功');
-                    $scope.showVENDORID = '';
-                    $scope.showVENDORNAME = '';    
-                    $scope.getVendorList();
+                    if (response.Status == '200') {
+                        //alert("修改成功");
+                        $scope.showAlert('Information', '修改成功');
+                        $scope.showVENDORID = '';
+                        $scope.showVENDORNAME = '';
+                        $scope.getVendorList();
+                    } else {
+                        $scope.showAlert('Error', response.Message);
+                    }
                 }).error(function (response) {
-                    alert(response);
+                    $scope.showAlert('Error', response);
                 });
             }
 
@@ -158,11 +166,14 @@
         $scope.DelData = function (source) {
 
             $http.post("@Url.Action("DeleteSource", "Home")", { input: JSON.stringify(source) }).success(function (response) {
-
-                $scope.showAlert('Information', '刪除成功');
-                $scope.getVendorList();
+                if (response.Status == '200') {
+                    $scope.showAlert('Information', '刪除成功');
+                    $scope.getVendorList();
+                } else {
+                    $scope.showAlert('Error', response.Message);
+                }
             }).error(function (response) {
-                alert(response);
+                $scope.showAlert('Error', response);
             });
 
         }
@@ -232,20 +243,20 @@
             <div class="panel-body">
                 <div class="row form-group">
                     @*<div class="col-md-6 col-md-offset-1">
-                        <input type="text" class="form-control" placeholder="識別 ID / 廠商" ng-model="keyValue" onkeyup="value=value.toUpperCase()" ng-init="keyValue=''" ng-blur="">
-                    </div>
-                    <div class="col-md-1 ">
-                        <button class="btn btn-success" ng-click="getVendorSearch()" ng-init="getVendorList() " ng-disabled="">搜尋</button>
-                    </div>
-                    <div class="col-md-1 ">
-                        <button class="btn btn-primary" ng-click="addVendorData()">新增</button>
-                    </div>
-                    <div class="col-md-1 ">
-                        <button class="btn btn-primary" ng-click="showImport=true">匯入</button>
-                    </div>
-                    <div class="col-md-1 ">
-                        <button class="btn btn-primary" ng-click="Export()">匯出</button>
-                    </div>*@
+                            <input type="text" class="form-control" placeholder="識別 ID / 廠商" ng-model="keyValue" onkeyup="value=value.toUpperCase()" ng-init="keyValue=''" ng-blur="">
+                        </div>
+                        <div class="col-md-1 ">
+                            <button class="btn btn-success" ng-click="getVendorSearch()" ng-init="getVendorList() " ng-disabled="">搜尋</button>
+                        </div>
+                        <div class="col-md-1 ">
+                            <button class="btn btn-primary" ng-click="addVendorData()">新增</button>
+                        </div>
+                        <div class="col-md-1 ">
+                            <button class="btn btn-primary" ng-click="showImport=true">匯入</button>
+                        </div>
+                        <div class="col-md-1 ">
+                            <button class="btn btn-primary" ng-click="Export()">匯出</button>
+                        </div>*@
                 </div>
                 <div class="row">
                     <div class="col-md-12  ">
@@ -261,20 +272,20 @@
 
                                     <td>{{vendor.ID}}</td>
                                     <td>{{vendor.NAME}}</td>
-                                   
+
                                     <td>
                                         <button type="submit" class="btn-xs btn-primary" ng-click="ModifyData(vendor)">修改</button>
                                         <button type="submit" class="btn-xs btn-danger" ng-click="DelData(vendor)">刪除</button>
                                     </td>
-                                    
+
                                 </tr>
                                 <tr>
-                                    <td> 
-                                        <button class="btn btn-primary" ng-click="addVendorData()">新增</button>                   
+                                    <td>
+                                        <button class="btn btn-primary" ng-click="addVendorData()">新增</button>
                                     </td>
                                     <td></td>
                                     <td></td>
-                                  
+
                                 </tr>
                             </tbody>
 
@@ -283,17 +294,19 @@
                             <ul class="pagination-controle pagination">
                                 <li>
                                     <button type="button" class="btn btn-primary" ng-disabled="curPage == 0"
-                                        ng-click="curPage=curPage-1">
-                                        &lt; PREV</button>
+                                            ng-click="curPage=curPage-1">
+                                        &lt; PREV
+                                    </button>
                                 </li>
                                 <li>
                                     <span>Page {{curPage + 1}} of {{ numberOfPages() }}</span>
                                 </li>
                                 <li>
                                     <button type="button" class="btn btn-primary"
-                                        ng-disabled="curPage >= vendorListModel.length/pageSize - 1"
-                                        ng-click="curPage = curPage+1">
-                                        NEXT &gt;</button>
+                                            ng-disabled="curPage >= vendorListModel.length/pageSize - 1"
+                                            ng-click="curPage = curPage+1">
+                                        NEXT &gt;
+                                    </button>
                                 </li>
                             </ul>
                         </div>

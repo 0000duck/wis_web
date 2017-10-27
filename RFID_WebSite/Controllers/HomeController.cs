@@ -36,19 +36,88 @@ namespace RFID_WebSite.Controllers
             return compName.First();
         }
 
-        public JsonResult UpdateAntSetting(string eachSetting)
+        public JsonResult AddTagMapping(string realID)
         {
             try
             {
-                Structure.AntSetting infoObj = JsonConvert.DeserializeObject<Structure.AntSetting>(eachSetting);
-                RFID_WebSite.Models.GateInfoModel AntSettingData = new GateInfoModel();
-                AntSettingData.UpdateAntSetting(infoObj);
-
-                return Json("", JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                RFID_WebSite.Models.ContainerModels ModelsData = new RFID_WebSite.Models.ContainerModels();
+                ModelsData.AddTagMapping(realID);
+                result.Status = "200";
+                result.Message = "Success";
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+ 
+            public JsonResult GetTagMappingByRealID(string realID)
+        {
+            try
+            {
+                ResponseContent<Structure.RF_TagMapping> result = new ResponseContent<Structure.RF_TagMapping>();
+                RFID_WebSite.Models.ContainerModels ModelsData = new RFID_WebSite.Models.ContainerModels();
+                Structure.RF_TagMapping objs = ModelsData.GetTagMappingByRealID(realID);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        public JsonResult GetTagMappingByTagID(string tagID)
+        {
+            try
+            {
+                ResponseContent<Structure.RF_TagMapping> result = new ResponseContent<Structure.RF_TagMapping>();
+                RFID_WebSite.Models.ContainerModels ModelsData = new RFID_WebSite.Models.ContainerModels();
+                Structure.RF_TagMapping objs = ModelsData.GetTagMappingByTagID(tagID);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        public JsonResult UpdateAntSetting(string eachSetting)
+        {
+
+            try
+            {
+                Structure.AntSetting infoObj = JsonConvert.DeserializeObject<Structure.AntSetting>(eachSetting);
+                ResponseContent<string> result = new ResponseContent<string>();
+                RFID_WebSite.Models.GateInfoModel AntSettingData = new GateInfoModel();
+                AntSettingData.UpdateAntSetting(infoObj);
+                result.Status = "200";
+                result.Message = "Success";
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -57,30 +126,42 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<List<string>> result = new ResponseContent<List<string>>();
                 RFID_WebSite.Models.GateInfoModel AntSettingData = new GateInfoModel();
                 List<string> objs = AntSettingData.GetAreaList(Fab);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
 
-        public JsonResult GetAntSetting(string Fab,string Area)
+        public JsonResult GetAntSetting(string Fab, string Area)
         {
             try
             {
+                ResponseContent<List<Structure.AntSetting>> result = new ResponseContent<List<Structure.AntSetting>>();
                 RFID_WebSite.Models.GateInfoModel AntSettingData = new GateInfoModel();
-                List<Structure.AntSetting> objs = AntSettingData.GetAntSetting(Fab,Area);
+                List<Structure.AntSetting> objs = AntSettingData.GetAntSetting(Fab, Area);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -89,14 +170,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<Structure.areaCount> result = new ResponseContent<Structure.areaCount>();
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 Structure.areaCount objs = containerData.GetAreaCount();
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -106,16 +193,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
-
+                ResponseContent<string> result = new ResponseContent<string>();
                 RFID_WebSite.Models.ContainerModels cardata = new ContainerModels();
                 DataTable carDT = cardata.getCarDetail(DivPoint);
                 string objs = JsonConvert.SerializeObject(carDT, Formatting.Indented);
-
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -124,14 +215,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<string> result = new ResponseContent<string>();
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 string shipTo = containerData.GetShipTo(carID);
 
-                return Json(shipTo, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = shipTo;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -140,37 +237,57 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<Structure.containerInfo> result = new ResponseContent<Structure.containerInfo>();
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 Structure.containerInfo objs = containerData.GetContainerInfo(containerID, carID);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
 
         public JsonResult GetHostName()
         {
-            hostNameStr = HttpContext.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
-
-            if (hostNameStr == null)
+            try
             {
-                hostNameStr = HttpContext.Request.UserHostName;
+                ResponseContent<string> result = new ResponseContent<string>();
+                hostNameStr = HttpContext.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+
+                if (hostNameStr == null)
+                {
+                    hostNameStr = HttpContext.Request.UserHostName;
+                }
+                // hostNameStr = HttpContext.Request.Headers["REMOTE_ADDR"];
+                string hostName = DetermineCompName(hostNameStr);
+                //System.Web.HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+                result.Status = "200";
+                result.Message = hostName;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
-            // hostNameStr = HttpContext.Request.Headers["REMOTE_ADDR"];
-            string hostName = DetermineCompName(hostNameStr);
-            //System.Web.HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
-            return Json(hostName, JsonRequestBehavior.AllowGet);
+            catch (Exception e)
+            {
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
         }
 
         public JsonResult AddContainerInfo(string jsonObj)
         {
             try
             {
-                Structure.ResponseObj result = new Structure.ResponseObj();
+                ResponseContent<string> result = new ResponseContent<string>();
+
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 Structure.containerInfo infoObj = JsonConvert.DeserializeObject<Structure.containerInfo>(jsonObj);
                 infoObj.start = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -179,14 +296,15 @@ namespace RFID_WebSite.Controllers
                     infoObj.ID = infoObj.carID;
                 }
                 containerData.AddInfo(infoObj);
-                result.status = "OK";
+                result.Status = "200";
+                result.Message = "OK";
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                Structure.ResponseObj result = new Structure.ResponseObj();
-                result.status = "NG";
-                result.detail = e.Message;
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
 
@@ -196,21 +314,23 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
-                Structure.ResponseObj result = new Structure.ResponseObj();
+                ResponseContent<string> result = new ResponseContent<string>();
                 Structure.containerInfo infoObj = JsonConvert.DeserializeObject<Structure.containerInfo>(jsonObj);
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 infoObj.end = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                Structure.RF_TagMapping tag = containerData.GetTagMappingByRealID(infoObj.ID);
 
-
+                containerData.DeleteTagMapping(tag.Tag_ID);
                 containerData.updateInfo(infoObj);
-                result.status = "OK";
+                result.Status = "200";
+                result.Message = "OK";
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                Structure.ResponseObj result = new Structure.ResponseObj();
-                result.status = "NG";
-                result.detail = e.Message;
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
 
@@ -221,16 +341,21 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
-
+                ResponseContent<string> result = new ResponseContent<string>();
                 RFID_WebSite.Models.VendorListModel ModelData = new VendorListModel();
                 DataTable DT = ModelData.GetSource();
                 string objs = JsonConvert.SerializeObject(DT, Formatting.Indented);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -239,16 +364,21 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
-
+                ResponseContent<string> result = new ResponseContent<string>();
                 RFID_WebSite.Models.VendorListModel ModelData = new VendorListModel();
 
                 string objs = ModelData.DeleteSource(JsonConvert.DeserializeObject<Structure.Source>(input));
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -257,16 +387,21 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
-
+                ResponseContent<string> result = new ResponseContent<string>();
                 RFID_WebSite.Models.VendorListModel ModelData = new VendorListModel();
-                
+
                 string objs = ModelData.ModifySource(JsonConvert.DeserializeObject<Structure.Source>(input));
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -276,16 +411,21 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
-
+                ResponseContent<string> result = new ResponseContent<string>();
                 RFID_WebSite.Models.VendorListModel ModelData = new VendorListModel();
                 DataTable DT = ModelData.getVendorlistModel();
                 string objs = JsonConvert.SerializeObject(DT, Formatting.Indented);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -294,16 +434,21 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
-
+                ResponseContent<string> result = new ResponseContent<string>();
                 RFID_WebSite.Models.VendorListModel ModelData = new VendorListModel();
                 DataTable DT = ModelData.getVendorOnlyModel(key);
                 string objs = JsonConvert.SerializeObject(DT, Formatting.Indented);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -312,7 +457,7 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
-                Structure.ResponseObj result = new Structure.ResponseObj();
+                ResponseContent<string> result = new ResponseContent<string>();
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 Structure.containerHis hisObj = JsonConvert.DeserializeObject<Structure.containerHis>(jsonObj);
                 hisObj.timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -321,14 +466,15 @@ namespace RFID_WebSite.Controllers
                     hisObj.container_id = hisObj.car_id;
                 }
                 containerData.AddHistory(hisObj);
-                result.status = "OK";
+                result.Status = "200";
+                result.Message = "OK";
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                Structure.ResponseObj result = new Structure.ResponseObj();
-                result.status = "NG";
-                result.detail = e.Message;
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
 
@@ -338,14 +484,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<List<Structure.containerHis>> result = new ResponseContent<List<Structure.containerHis>>();
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 List<Structure.containerHis> objs = containerData.GetContainerHistory(containerID, carID, fab, start, end);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -354,14 +506,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<List<Structure.TagHis>> result = new ResponseContent<List<Structure.TagHis>>();
                 RFID_WebSite.Models.TagModels TagModelsData = new TagModels();
                 List<Structure.TagHis> objs = TagModelsData.GeTagHistory(area, gateID, fab, antType, hideTagType, start, end);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -370,14 +528,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<List<Structure.TagHis>> result = new ResponseContent<List<Structure.TagHis>>();
                 RFID_WebSite.Models.TagModels TagModelsData = new TagModels();
                 List<Structure.TagHis> objs = TagModelsData.SearchTagHistory(area, gateID, fab, antType, tagID, start, end);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -386,14 +550,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<List<string>> result = new ResponseContent<List<string>>();
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 List<string> objs = containerData.GetContainerList();
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -402,14 +572,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<List<string>> result = new ResponseContent<List<string>>();
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 List<string> objs = containerData.GetDriverNameList();
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -418,14 +594,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<Structure.driverInfo> result = new ResponseContent<Structure.driverInfo>();
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 Structure.driverInfo objs = containerData.GetDriverInfo(name);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -434,14 +616,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<List<string>> result = new ResponseContent<List<string>>();
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 List<string> objs = containerData.GetCarIDList();
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -450,14 +638,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<Structure.driverInfo> result = new ResponseContent<Structure.driverInfo>();
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 Structure.driverInfo objs = containerData.GetDriverInfoByCarID(carID);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -466,14 +660,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<Structure.containerInfo> result = new ResponseContent<Structure.containerInfo>();
                 RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
                 Structure.containerInfo objs = containerData.GetContainer(id);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -482,14 +682,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<List<Structure.layoutObj>> result = new ResponseContent<List<Structure.layoutObj>>();
                 RFID_WebSite.Models.LayoutModel layoutData = new LayoutModel();
                 List<Structure.layoutObj> objs = new List<Structure.layoutObj>();
                 objs = layoutData.GetLayout(Name);
-                return Json(objs, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -498,24 +704,23 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
-                Structure.ResponseObj responseObj = new Structure.ResponseObj();
+                ResponseContent<string> result = new ResponseContent<string>();
                 List<Structure.layoutObj> objs = new List<Structure.layoutObj>();
                 RFID_WebSite.Models.LayoutModel layoutData = new LayoutModel();
 
                 objs = JsonConvert.DeserializeObject<List<Structure.layoutObj>>(listObject);
 
                 layoutData.StoreLayout(Name, objs);
-                responseObj.status = "OK";
-                return Json(responseObj, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = "OK";
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-
-                Structure.ResponseObj responseObj = new Structure.ResponseObj();
-                responseObj.status = "ERROR";
-                responseObj.detail = e.Message;
-
-                return Json(responseObj, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -523,32 +728,42 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<List<Structure.CaptionInfo>> result = new ResponseContent<List<Structure.CaptionInfo>>();
                 RFID_WebSite.Models.GateInfoModel GateData = new GateInfoModel();
-                List<Structure.CaptionInfo> CaptionList = GateData.GetCaptionList(FAB, AREA);
+                List<Structure.CaptionInfo> objs = GateData.GetCaptionList(FAB, AREA);
 
-                return Json(CaptionList, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.StackTrace, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
 
-        public JsonResult GetGateData(string FAB, string AREA,string GATE)
+        public JsonResult GetGateData(string FAB, string AREA, string GATE)
         {
             try
             {
+                ResponseContent<Structure.RF_ANTCURRENT> result = new ResponseContent<Structure.RF_ANTCURRENT>();
                 RFID_WebSite.Models.GateInfoModel GateData = new GateInfoModel();
-                Structure.RF_ANTCURRENT Gatainfo = new Structure.RF_ANTCURRENT();
+                Structure.RF_ANTCURRENT objs = GateData.GetEachGate(FAB, AREA, GATE);
 
-                Gatainfo = GateData.GetEachGate(FAB,AREA,GATE);
-
-                return Json(Gatainfo, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.StackTrace, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -557,16 +772,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<List<Structure.RF_ANTCURRENT>> result = new ResponseContent<List<Structure.RF_ANTCURRENT>>();
                 RFID_WebSite.Models.GateInfoModel GateData = new GateInfoModel();
-                List<Structure.RF_ANTCURRENT> Gatainfolist = new List<Structure.RF_ANTCURRENT>();
+                List<Structure.RF_ANTCURRENT> objs = GateData.GetGateStatus();
 
-                Gatainfolist = GateData.GetGateStatus();
-
-                return Json(Gatainfolist, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.StackTrace, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -576,16 +795,20 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<List<Structure.RF_CONTAINERINFO>> result = new ResponseContent<List<Structure.RF_CONTAINERINFO>>();
                 RFID_WebSite.Models.GateInfoModel GateData = new GateInfoModel();
-                List<Structure.RF_CONTAINERINFO> Gatainfolist = new List<Structure.RF_CONTAINERINFO>();
+                List<Structure.RF_CONTAINERINFO> objs = GateData.GetGateInfo(FAB, AREA);
 
-                Gatainfolist = GateData.GetGateInfo(FAB, AREA);
-
-                return Json(Gatainfolist, JsonRequestBehavior.AllowGet);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.StackTrace, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -594,17 +817,21 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
+                ResponseContent<string> result = new ResponseContent<string>();
                 RFID_WebSite.Models.VendorListModel vendorlist = new VendorListModel();
                 DataTable vendorData = vendorlist.getVendorData(guestid);
                 string objs = JsonConvert.SerializeObject(vendorData, Formatting.Indented);
 
-                return Json(objs, JsonRequestBehavior.AllowGet);
-
-
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(e.StackTrace, JsonRequestBehavior.AllowGet);
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -613,19 +840,21 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
-                Structure.ResponseObj result = new Structure.ResponseObj();
+                ResponseContent<string> result = new ResponseContent<string>();
+
                 RFID_WebSite.Models.VendorListModel vendordelete = new VendorListModel();
                 Structure.vendorManagement Obj = JsonConvert.DeserializeObject<Structure.vendorManagement>(jsonObj);
                 Obj.UPDATETIME = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 vendordelete.DeleteVendor(Obj);
-                result.status = "OK";
+                result.Status = "200";
+                result.Message = "OK";
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                Structure.ResponseObj result = new Structure.ResponseObj();
-                result.status = "NG";
-                result.detail = e.Message;
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
 
@@ -635,19 +864,21 @@ namespace RFID_WebSite.Controllers
         {
             try
             {
-                Structure.ResponseObj result = new Structure.ResponseObj();
+                ResponseContent<string> result = new ResponseContent<string>();
+
                 RFID_WebSite.Models.VendorListModel vendormodify = new VendorListModel();
                 Structure.vendorManagement Obj = JsonConvert.DeserializeObject<Structure.vendorManagement>(jsonObj);
                 Obj.UPDATETIME = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 vendormodify.ModifyVendor(Obj);
-                result.status = "OK";
+                result.Status = "200";
+                result.Message = "OK";
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                Structure.ResponseObj result = new Structure.ResponseObj();
-                result.status = "NG";
-                result.detail = e.Message;
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
 
@@ -655,31 +886,43 @@ namespace RFID_WebSite.Controllers
 
         public JsonResult ImportVendorData(string jsonObj)
         {
-
-            RFID_WebSite.Models.VendorListModel vendormodify = new VendorListModel();
-            List<Structure.vendorManagement> Obj = JsonConvert.DeserializeObject<List<Structure.vendorManagement>>(jsonObj);
-
-            for (int i = 0; i < Obj.Count; i++)
+            try
             {
-                try
+                ResponseContent<string> result = new ResponseContent<string>();
+                RFID_WebSite.Models.VendorListModel vendormodify = new VendorListModel();
+                List<Structure.vendorManagement> Obj = JsonConvert.DeserializeObject<List<Structure.vendorManagement>>(jsonObj);
+
+                for (int i = 0; i < Obj.Count; i++)
                 {
-                    if (Obj[i].VENDORID != null)
+                    try
                     {
-                        Obj[i].UPDATETIME = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                        vendormodify.ModifyVendor(Obj[i]);
+                        if (Obj[i].VENDORID != null)
+                        {
+                            Obj[i].UPDATETIME = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            vendormodify.ModifyVendor(Obj[i]);
+                        }
+                        else
+                        {
+                            return Json("錯誤行數:" + (i + 1) + " VENDORID is null");
+
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        return Json("錯誤行數:" + (i + 1) + " VENDORID is null");
-                      
+                        return Json("錯誤行數:" + (i + 1) + " Excepton:" + e.Message, JsonRequestBehavior.AllowGet);
                     }
                 }
-                catch (Exception e)
-                {
-                    return Json("錯誤行數:" + (i + 1) + " Excepton:" + e.Message, JsonRequestBehavior.AllowGet);
-                }
+                result.Status = "200";
+                result.Message = "OK";
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
-            return Json("OK", JsonRequestBehavior.AllowGet);
+            catch (Exception e)
+            {
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
         }
 
         public ActionResult Index()

@@ -1,0 +1,154 @@
+﻿<script src="~/Scripts/alasql.min.js"></script>
+<script src="~/Scripts/xlsx.core.min.js"></script>
+<style>
+    .paginationclass {
+        margin: 19px 28px;
+    }
+
+        .paginationclass span {
+            margin-left: 15px;
+            display: inline-block;
+        }
+
+    .pagination-controle li {
+        display: inline-block;
+    }
+
+    .pagination-controle button {
+        font-size: 12px;
+        margin-top: -26px;
+        cursor: pointer;
+    }
+
+    .pagination {
+        margin: 5px 12px !important;
+    }
+</style>
+<script>
+    var InOutSite = angular.module('History', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+    angular.module('History').filter('pagination', function () {
+        return function (input, start) {
+            start = +start;
+            return input.slice(start);
+        };
+    });
+
+    InOutSite.controller('Data', function ($scope, $http, $filter) {
+        $scope.init = function () {
+            $scope.curPage = 0;
+            $scope.pageSize = 15;
+            $scope.hisResult = [];
+
+            $scope.Query();
+        };
+
+
+        $scope.Query = function () {
+
+
+            $http.post("@Url.Action("GetCylinders", "Cylinder")", {}).success(function (response) {
+                $scope.hisResult = response.Message;
+                $scope.curPage = 0;
+            }).error(function (response) {
+                //alert(response);
+            });
+        };
+
+        $scope.Export = function () {
+
+            alasql('SELECT * INTO XLS("export.xls",{headers:true}) FROM ?', [$scope.hisResult]);
+        };
+        $scope.init();
+
+        $scope.numberOfPages = function () {
+            return Math.ceil($scope.hisResult.length / $scope.pageSize);
+        };
+
+
+
+
+    });
+
+</script>
+
+<div class="row datepickerdemoBasicUsage" ng-app="History" ng-controller="Data">
+
+
+    <div class="col-md-10 col-md-offset-1">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <h3 class="panel-title pull-left"><strong>鋼瓶狀態</strong></h3>
+                <button class="btn-xs btn-default pull-right" ng-click="Query()">查詢</button>
+                <button class="btn-xs btn-default pull-right" ng-show="hisResult" ng-click="Export()">匯出</button>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                </div>
+
+                <fieldset>
+                    <legend></legend>
+
+                    <table class='table table-striped table-bordered'>
+                        <thead>
+                            <tr>
+
+                                <th>FAB</th>
+                                <th>AREA</th>
+                                <th>TAGID</th>
+                                <th>POSITION</th>
+                                <th>NEWPOSITION</th>
+                                <th>CHECKTIMES</th>
+                                <th>STATUS</th>
+                                <th>TYPE</th>
+                                <th>UPDATETIME</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: small">
+                            <tr ng-repeat="eachRow in hisResult | pagination: curPage * pageSize | limitTo: pageSize">
+
+                                <td>{{eachRow.FAB}}</td>
+                                <td>{{eachRow.AREA}}</td>
+                                <td>{{eachRow.TAGID}}</td>
+                                <td>{{eachRow.POSITION}}</td>
+                                <td>{{eachRow.NEWPOSITION}}</td>
+                                <td>{{eachRow.CHECKTIMES}}</td>
+                                <td>{{eachRow.STATUS}}</td>
+                                <td>{{eachRow.GASTYPE}}</td>
+                                <td>{{eachRow.UPDATETIME}}</td>
+
+
+
+
+                            </tr>
+
+                        </tbody>
+                    </table>
+                    <div class="pagination pagination-centered" ng-show="hisResult.length">
+                        <ul class="pagination-controle pagination">
+                            <li>
+                                <button type="button" class="btn btn-primary" ng-disabled="curPage == 0"
+                                    ng-click="curPage=curPage-1">
+                                    &lt; PREV</button>
+                            </li>
+                            <li>
+                                <span>Page {{curPage + 1}} of {{ numberOfPages() }}</span>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-primary"
+                                    ng-disabled="curPage >= hisResult.length/pageSize - 1"
+                                    ng-click="curPage = curPage+1">
+                                    NEXT &gt;</button>
+                            </li>
+
+                        </ul>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+

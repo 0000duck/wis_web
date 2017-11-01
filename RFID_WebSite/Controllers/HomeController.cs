@@ -36,6 +36,48 @@ namespace RFID_WebSite.Controllers
             return compName.First();
         }
 
+        public JsonResult AddTagMapping(string realID)
+        {
+            try
+            {
+                ResponseContent<string> result = new ResponseContent<string>();
+                RFID_WebSite.Models.ContainerModels ModelsData = new RFID_WebSite.Models.ContainerModels();
+                ModelsData.AddTagMapping(realID);
+                result.Status = "200";
+                result.Message = "Success";
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        public JsonResult GetTagMappingByRealID(string realID)
+        {
+            try
+            {
+                ResponseContent<Structure.RF_TagMapping> result = new ResponseContent<Structure.RF_TagMapping>();
+                RFID_WebSite.Models.ContainerModels ModelsData = new RFID_WebSite.Models.ContainerModels();
+                Structure.RF_TagMapping objs = ModelsData.GetTagMappingByRealID(realID);
+                result.Status = "200";
+                result.Message = objs;
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         public JsonResult UpdateAntSetting(string eachSetting)
         {
             try

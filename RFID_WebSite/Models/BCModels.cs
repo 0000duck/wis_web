@@ -365,6 +365,8 @@ namespace RFID_WebSite.Models
                 sqlString += " and pp.ppid = '"+PPID+"'";
             }
 
+            sqlString += " order by pp.ppid";
+
             DataTable Dt = dbObj.SelectSQL(sqlString);
 
             foreach (DataRow eachRow in Dt.Rows)

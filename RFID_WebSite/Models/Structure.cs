@@ -7,6 +7,15 @@ namespace RFID_WebSite.Models
 {
     public class Structure
     {
+
+        public class Gate{
+            public string Fab = "";
+            public string Area = "";
+            public string Gate = "";
+            public string CarType = "";
+            public string ContainerID = "";
+        }
+
         public class RF_TagMapping
         {
             public string Tag_ID { get; set; }

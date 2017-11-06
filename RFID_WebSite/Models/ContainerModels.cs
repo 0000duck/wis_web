@@ -9,6 +9,25 @@ namespace RFID_WebSite.Models
 {
     public class ContainerModels
     {
+        public string PortBinding(Structure.Gate carInfo){
+            using(var client = newHttpClient())  
+            {  
+                client.BaseAddress = newUri("http://localhost:55587/");  
+                client.DefaultRequestHeaders.Accept.Clear();  
+                client.DefaultRequestHeaders.Accept.Add(newMediaTypeWithQualityHeaderValue("application/json"));  
+
+                var department = newDepartment() { DepartmentName = "Test Department" };  
+                HttpResponseMessage response = awaitclient.PostAsJsonAsync("api/Department", department);  
+
+                if (response.IsSuccessStatusCode)  
+                {  
+                // Get the URI of the created resource.  
+                UrireturnUrl = response.Headers.Location;  
+                Console.WriteLine(returnUrl);  
+                }  
+            }  
+        }
+
         public Structure.RF_TagMapping GetTagMappingByRealID(string RealID)
         {
             OracleDB dbObj = new OracleDB("RFID_DB");

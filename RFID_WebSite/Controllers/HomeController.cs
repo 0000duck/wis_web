@@ -56,6 +56,31 @@ namespace RFID_WebSite.Controllers
             }
 
         }
+
+        public JsonResult BindACar(String jsonObj)
+        {
+            try
+            {
+                ResponseContent<string> result = new ResponseContent<string>();
+                Structure.Gate infoObj = JsonConvert.DeserializeObject<Structure.Gate>(jsonObj);
+                RFID_WebSite.Models.ContainerModels containerData = new ContainerModels();
+                
+                result.Message = containerData.PortBinding(infoObj);
+                
+                result.Status = "200";
+                
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                ResponseContent<string> result = new ResponseContent<string>();
+                result.Status = "500";
+                result.Message = e.Message + " " + e.StackTrace;
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
  
             public JsonResult GetTagMappingByRealID(string realID)
         {

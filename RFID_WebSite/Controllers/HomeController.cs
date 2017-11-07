@@ -57,6 +57,7 @@ namespace RFID_WebSite.Controllers
 
         }
 
+<<<<<<< HEAD
         public JsonResult BindACar(String jsonObj)
         {
             try
@@ -83,6 +84,9 @@ namespace RFID_WebSite.Controllers
         }
  
             public JsonResult GetTagMappingByRealID(string realID)
+=======
+        public JsonResult GetTagMappingByRealID(string realID)
+>>>>>>> origin/新增手動邦定解除綁定頁面
         {
             try
             {
@@ -103,6 +107,7 @@ namespace RFID_WebSite.Controllers
 
         }
 
+<<<<<<< HEAD
         public JsonResult GetTagMappingByTagID(string tagID)
         {
             try
@@ -124,6 +129,8 @@ namespace RFID_WebSite.Controllers
 
         }
 
+=======
+>>>>>>> origin/新增手動邦定解除綁定頁面
         public JsonResult UpdateAntSetting(string eachSetting)
         {
 

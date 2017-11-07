@@ -7,6 +7,7 @@ namespace RFID_WebSite.Models
 {
     public class Structure
     {
+<<<<<<< HEAD
 
         public class Gate{
             public string Fab = "";
@@ -16,6 +17,8 @@ namespace RFID_WebSite.Models
             public string ContainerID = "";
         }
 
+=======
+>>>>>>> origin/新增手動邦定解除綁定頁面
         public class RF_TagMapping
         {
             public string Tag_ID { get; set; }

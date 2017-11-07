@@ -28,7 +28,11 @@ namespace RFID_WebSite.Models
             {
                 foreach (PropertyInfo pro in temp.GetProperties())
                 {
+<<<<<<< HEAD
                     if (pro.Name.ToUpper() == column.ColumnName.ToUpper())
+=======
+                    if (pro.Name == column.ColumnName)
+>>>>>>> origin/新增手動邦定解除綁定頁面
                     {
 
                         if (dr[column.ColumnName] != DBNull.Value)

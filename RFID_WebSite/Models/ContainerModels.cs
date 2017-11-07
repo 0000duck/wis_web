@@ -9,6 +9,7 @@ namespace RFID_WebSite.Models
 {
     public class ContainerModels
     {
+<<<<<<< HEAD
         public string PortBinding(Structure.Gate carInfo){
             using(var client = newHttpClient())  
             {  
@@ -28,6 +29,8 @@ namespace RFID_WebSite.Models
             }  
         }
 
+=======
+>>>>>>> origin/新增手動邦定解除綁定頁面
         public Structure.RF_TagMapping GetTagMappingByRealID(string RealID)
         {
             OracleDB dbObj = new OracleDB("RFID_DB");
@@ -46,6 +49,7 @@ namespace RFID_WebSite.Models
             }
         }
 
+<<<<<<< HEAD
         public Structure.RF_TagMapping GetTagMappingByTagID(string TagID)
         {
             OracleDB dbObj = new OracleDB("RFID_DB");
@@ -64,6 +68,8 @@ namespace RFID_WebSite.Models
             }
         }
 
+=======
+>>>>>>> origin/新增手動邦定解除綁定頁面
         public void AddTagMapping(string RealID)
         {
             
@@ -76,6 +82,7 @@ namespace RFID_WebSite.Models
            
         }
 
+<<<<<<< HEAD
         public void DeleteTagMapping(string TagID)
         {
 
@@ -85,6 +92,8 @@ namespace RFID_WebSite.Models
 
         }
 
+=======
+>>>>>>> origin/新增手動邦定解除綁定頁面
         public Structure.areaCount GetAreaCount()
         {
             Structure.areaCount areaCountObject = new Structure.areaCount();

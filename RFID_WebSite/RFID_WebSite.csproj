@@ -380,6 +380,12 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
+=======
+    <Content Include="Views\Home\WriteTag.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+>>>>>>> origin/新增手動邦定解除綁定頁面
     <Content Include="Views\Home\About.cshtml" />
   </ItemGroup>
   <ItemGroup>
